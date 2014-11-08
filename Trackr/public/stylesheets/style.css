@@ -1,8 +1,23 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	margin: 0;
+	background-image: url('/images/bg-graph-paper.gif');
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+#masthead h1 {
+	font-family: 'Rock Salt', cursive;
+	font-size: 40px;
+	color: #DB3232;
+	margin: 10px 40px;
 }
 
 a {
-  color: #00B7FF;
+	color: #00B7FF;
+}
+
+#top-bar {
+	padding: 15px;
+	text-align: center;
+	background-color: white;
+	box-shadow: 1px 1px 3px 2px #999999;
 }

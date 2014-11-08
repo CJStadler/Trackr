@@ -1,5 +1,14 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+	header#masthead
+		h1 Trackr
+		
+	section#top-bar
+		form#get-url
+			label(for="tfrrs_url") tffrs.org/
+			input(type="text", name="tfrrs_url", id="tfrrs_url")
+			input(type="submit", value="Get Data")
+			
+	section#content
+		div#graphs
