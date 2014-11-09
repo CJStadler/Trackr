@@ -58,30 +58,56 @@ var athlete_graphs = function(data) {
 // given an array of performances, make a graph and append it to the panel.
 // based on http://bl.ocks.org/mbostock/3883245
 var graph_event = function(data, panel) {
-	var margin = {top: 20, right: 20, bottom: 20, left: 40},
+	var margin = {top: 20, right: 20, bottom: 20, left: 60},
 	width = panel.width() - margin.left - margin.right,
 	height = 300 - margin.top - margin.bottom;
 
 	var parseDate = d3.time.format("%m/%d/%y").parse;
-	var parseTime = d3.time.format("%M:%S.%L").parse;
+	//var showMonth = d3.time.format("%m/%y");
+	//var parseTime = d3.time.format("%M:%S.%L").parse;
 
 	var x = d3.time.scale()
 		.range([0, width]);
 
-	var y = d3.time.scale()
+	var y = d3.scale.linear()
 		.range([height, 0]);
 
 	var xAxis = d3.svg.axis()
 		.scale(x)
+		.ticks(7)
+		//.tickFormat(function(d) { return showMonth(d); })
 		.orient("bottom");
 
 	var yAxis = d3.svg.axis()
 		.scale(y)
+		.tickFormat(function(d) { return seconds_to_time(d); })
 		.orient("left");
 
 	var line = d3.svg.line()
 		.x(function(d) { return x(d.date); })
 		.y(function(d) { return y(d.mark); });
+		
+	var tip = d3.tip()
+		.attr('class', 'd3-tip')
+		.offset(function(d) {
+			var circle_offset = $(this).offset().left;
+			if (circle_offset < 150) {
+				return [0, 5]; // positioned to right
+			} else {
+				return [-8, 0]; // positioned above
+			};
+		})
+		.direction(function(d) {
+			var circle_offset = $(this).offset().left;
+			if (circle_offset < 150) {
+				return 'e';
+			} else {
+				return 'n';
+			};
+		})
+		.html(function(d) {
+			return tooltip_html(d);
+		});
 
 	var svg = d3.selectAll(panel.toArray()).append("svg")
 		.attr("width", width + margin.left + margin.right)
@@ -91,12 +117,14 @@ var graph_event = function(data, panel) {
 
 	data.forEach(function(d) {
 		d.date = parseDate(nice_date(d.date));
-		d.mark = parseTime(d.mark);
+		d.mark = time_to_seconds(d.mark);
 	});
 
-	x.domain(d3.extent(data, function(d) { return d.date; })).nice();
-	y.domain(d3.extent(data, function(d) { return d.mark; })).nice();
+	x.domain(d3.extent(data, function(d) { return d.date; }));
+	y.domain(d3.extent(data, function(d) { return d.mark; }));
 
+	svg.call(tip);
+	
 	svg.append("g")
 		.attr("class", "x axis")
 		.attr("transform", "translate(0," + height + ")")
@@ -124,23 +152,50 @@ var graph_event = function(data, panel) {
 		.attr("r", 5)
 		.attr("cx", function(d) { return x(d.date); })
 		.attr("cy", function(d) { return y(d.mark); })
-		.append("title").text(function(d) { return performance_info(d); });
+		.on('mouseover', tip.show)
+		.on('mouseout', tip.hide)
 };
 
+// takes a string representing a time and returns the number of seconds.
+var time_to_seconds = function(time) {
+	var seconds = 0.0;
+	var arr = time.split(":").reverse();
+	var len = arr.length;
+	seconds += parseFloat(arr[0]); // seconds
+	if (len > 1) {
+		seconds += parseInt(arr[1])*60; // minutes
+	}
+	return seconds;
+}
+
+// take the number of seconds and format it for display
+var seconds_to_time = function(total) {
+	var minutes = Math.floor(total/60);
+	var seconds = total - minutes*60;
+	if (seconds < 10) {
+		var divider = ":0";
+	} else {
+		var divider = ":";
+	};
+	return minutes + divider + seconds.toFixed(2);
+}
+
 // takes an object describing a performance and returns a nice readable string.
-var performance_info = function(performance) {
-	return "Meet: " + performance.meet + "\n"
-			+ "Date: " + performance.date + "\n"
-			+ "Event: " + performance.event + "\n"
-			+ "Time: " + performance.mark + "\n"
-			+ "Place: " + performance.place + "\n";
+var tooltip_html = function(performance) {
+	var nice_date = d3.time.format("%m/%d/%y");
+	return "<p>Meet: <span>" + performance.meet + "</span></p>"
+			+ "<p>Date: <span>" + nice_date(performance.date) + "</span></p>"
+			+ "<p>Event: <span>" + performance.event + "</span></p>"
+			+ "<p>Time: <span>" + seconds_to_time(performance.mark) + "</span></p>"
+			+ "<p>Place: <span>" + performance.place + "</span></p>";
 };
+
 
 var new_panel = function(title, href) {
 	var panel = $("<article class='panel'></article>");
-	panel.append("<div class='close-panel'>x</div>").click(function() { panel.remove(); });
-	var header = $("<h1><a href='"+href+"'>"+title+"</a></h1>");
-	panel.append(header);
+	var close = $("<div class='close-panel'>x</div>").click(function() { panel.remove(); });
+	panel.append(close)
+	panel.append("<h1><a href='"+href+"'>"+title+"</a></h1>");
 	return panel;
 };
 
