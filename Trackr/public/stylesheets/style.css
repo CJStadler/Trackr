@@ -16,8 +16,66 @@ a {
 }
 
 #top-bar {
+	width: 100%;
 	padding: 15px;
 	text-align: center;
 	background-color: white;
 	box-shadow: 1px 1px 3px 2px #999999;
+	font-size: 18px;
+}
+
+#top-bar label {
+	font-size: 16px;
+}
+
+.panel {
+	display: inline-block;
+	background-color: white;
+	box-shadow: 1px 1px 3px 2px #999999;
+	margin: 20px 0 0 20px;
+	min-width: 200px;
+	width: 95%;
+	max-width: 550px;
+	min-height: 500px;
+	padding: 5px;
+}
+
+.panel h1 {
+	margin: 5px 0 20px 5px;
+	color: #133973;
+}
+
+
+.close-panel {
+	padding: 5px;
+	height: 15px;
+	width: 12px;
+	float: right;
+	text-align: left;
+	font: bold 15px arial, sans-serif;
+	cursor: pointer;
+}
+
+/* ################################ Viz styles ################ */
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+.dot {
+	stroke: #000;
+	fill: steelblue;
+}
+
+svg {
+	font: 10px sans-serif;
 }
