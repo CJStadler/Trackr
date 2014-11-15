@@ -30,14 +30,12 @@ a {
 
 .panel {
 	display: inline-block;
-	vertical-align: top;
 	background-color: white;
 	box-shadow: 1px 1px 3px 2px #999999;
-	margin: 20px 0 0 20px;
-	min-width: 200px;
-	width: 95%;
-	max-width: 550px;
-	min-height: 500px;
+	margin: 20px;
+	width: 550px;
+
+	height: 380px;
 	padding: 5px;
 }
 

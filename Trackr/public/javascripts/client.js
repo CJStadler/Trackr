@@ -3,8 +3,16 @@
 
 // listeners
 $(document).ready(function() {
+	init_data();
 	init_get_url();
 });
+
+var init_data = function() {
+	// hash linking event names to indexes of panels
+	window.event_panel_ids = {};
+	// counter for panels
+	window.panel_sequence = 0;
+};
 
 var init_get_url = function() {
 	$('#get-url').submit(function(event) {
@@ -38,26 +46,38 @@ var viz_new_data = function(data) {
 	// controller for adding a new visualization
 	
 	// Athlete or org?
-	athlete_graphs(data)
+	viz_athlete(data);
 	
 	// testing 
 	//$('#graphs').prepend("<article class='pane'></article>").text(data);
 };
 
-var athlete_graphs = function(data) {
-	var panel = new_panel(data.athlete.name, data.athlete.url);
-	$('#graphs').prepend(panel)
+var viz_athlete = function(data) {
+	//var panel = new_panel(data.athlete.name, data.athlete.url);
+	//$('#graphs').prepend(panel)
 	var events = sort_by_event(data.athlete.races);
 	$.each(events, function(event_name, performances) {
-		panel.append("<h2>" + event_name + "</h2>");
-		graph_event(performances, panel);
-	}); 
-	
+		if (!(event_name in event_panel_ids)) {
+			init_event_graph(event_name)
+		};
+		// trigger an event on the panel, which will be listened for in the d3 code
+		$("#panel-" + event_panel_ids[event_name]).trigger("new-athlete", [performances]);
+		//update_event(event_name, performances);
+		//panel.append("<h2>" + event_name + "</h2>");
+		//graph_event(performances, panel);
+	});
+};
+
+// make a panel for the event and init a d3 graph
+var init_event_graph = function(event_name) {
+	var panel = new_panel(event_name);
+	$('#graphs').prepend(panel)
+	init_graph(event_name, panel)
 };
 
 // given an array of performances, make a graph and append it to the panel.
 // based on http://bl.ocks.org/mbostock/3883245
-var graph_event = function(data, panel) {
+var init_graph = function(event_name, panel) {
 	var margin = {top: 20, right: 20, bottom: 20, left: 60},
 	width = panel.width() - margin.left - margin.right,
 	height = 300 - margin.top - margin.bottom;
@@ -115,45 +135,52 @@ var graph_event = function(data, panel) {
 	  .append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	data.forEach(function(d) {
-		d.date = parseDate(nice_date(d.date));
-		d.mark = time_to_seconds(d.mark);
-	});
+	// add data to the graph
+	var update = function(data) {
+		data.forEach(function(d) {
+			d.date = parseDate(nice_date(d.date));
+			d.mark = time_to_seconds(d.mark);
+		});
 
-	x.domain(d3.extent(data, function(d) { return d.date; }));
-	y.domain(d3.extent(data, function(d) { return d.mark; }));
+		x.domain(d3.extent(data, function(d) { return d.date; }));
+		y.domain(d3.extent(data, function(d) { return d.mark; }));
 
-	svg.call(tip);
-	
-	svg.append("g")
-		.attr("class", "x axis")
-		.attr("transform", "translate(0," + height + ")")
-		.call(xAxis);
-
-	svg.append("g")
-		.attr("class", "y axis")
-		.call(yAxis)
-		.append("text")
-		.attr("transform", "rotate(-90)")
-		.attr("y", 6)
-		.attr("dy", ".71em")
-		.style("text-anchor", "end")
-		.text("Time");
-
-	svg.append("path")
-		.datum(data)
-		.attr("class", "line")
-		.attr("d", line);
+		svg.call(tip);
 		
-	svg.selectAll(".dot")
-		.data(data)
-		.enter().append("circle")
-		.attr("class", "dot")
-		.attr("r", 5)
-		.attr("cx", function(d) { return x(d.date); })
-		.attr("cy", function(d) { return y(d.mark); })
-		.on('mouseover', tip.show)
-		.on('mouseout', tip.hide)
+		svg.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxis);
+
+		svg.append("g")
+			.attr("class", "y axis")
+			.call(yAxis)
+			.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("y", 6)
+			.attr("dy", ".71em")
+			.style("text-anchor", "end")
+			.text("Time");
+
+		svg.append("path")
+			.datum(data)
+			.attr("class", "line")
+			.attr("d", line);
+			
+		svg.selectAll(".dot")
+			.data(data)
+			.enter().append("circle")
+			.attr("class", "dot")
+			.attr("r", 5)
+			.attr("cx", function(d) { return x(d.date); })
+			.attr("cy", function(d) { return y(d.mark); })
+			.on('mouseover', tip.show)
+			.on('mouseout', tip.hide)
+	};
+	
+	panel.on("new-athlete", function(event, performances) {
+		update(performances);
+	});
 };
 
 // takes a string representing a time and returns the number of seconds.
@@ -191,11 +218,14 @@ var tooltip_html = function(performance) {
 };
 
 
-var new_panel = function(title, href) {
-	var panel = $("<article class='panel'></article>");
+var new_panel = function(event) {
+	var panel = $("<article class='panel' id='panel-" + panel_sequence + "'></article>");
+	event_panel_ids[event] = panel_sequence;
+	panel_sequence++;
+	
 	var close = $("<div class='close-panel'>x</div>").click(function() { panel.remove(); });
 	panel.append(close)
-	panel.append("<h1><a href='"+href+"'>"+title+"</a></h1>");
+	panel.append("<h1>"+event+"</h1>");
 	return panel;
 };
 
