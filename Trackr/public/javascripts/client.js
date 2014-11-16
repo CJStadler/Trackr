@@ -13,8 +13,14 @@ var init_data = function() {
 	trackr.event_panel_ids = {};
 	// counter for panels
 	trackr.panel_sequence = 0;
+	// name => id
+	trackr.athlete_ids = {};
+	// counter
+	trackr.athlete_sequence = 0;
 	// store data by event
 	trackr.event_data = {};
+	// colors for athletes
+	trackr.colors = d3.scale.category10();
 };
 
 var init_get_url = function() {
@@ -56,15 +62,19 @@ var viz_new_data = function(data) {
 };
 
 var viz_athlete = function(data) {
-	//var panel = new_panel(data.athlete.name, data.athlete.url);
-	//$('#graphs').prepend(panel)
+	trackr.athlete_ids[data.athlete.name] = trackr.athlete_sequence;
+	trackr.athlete_sequence++;
+	
+	// add athlete label to key
+	$("#athletes-key").append(new_label(data.athlete.name));
+	
 	var events = sort_by_event(data.athlete.races);
 	$.each(events, function(event_name, performances) {
 		if (!(event_name in trackr.event_panel_ids)) {
 			init_event_graph(event_name)
 		};
 		// trigger an event on the panel, which will be listened for in the d3 code
-		$("#panel-" + trackr.event_panel_ids[event_name]).trigger("new-athlete", [performances]);
+		$("#panel-" + trackr.event_panel_ids[event_name]).trigger("new-athlete", {'name': data.athlete.name, 'performances': performances});
 		//update_event(event_name, performances);
 		//panel.append("<h2>" + event_name + "</h2>");
 		//graph_event(performances, panel);
@@ -74,7 +84,7 @@ var viz_athlete = function(data) {
 // make a panel for the event and init a d3 graph
 var init_event_graph = function(event_name) {
 	var panel = new_panel(event_name);
-	$('#graphs').prepend(panel)
+	$('#graphs').append(panel)
 	init_graph(event_name, panel)
 };
 
@@ -158,25 +168,35 @@ var init_graph = function(event_name, panel) {
 		.text("Time");
 		
 	// add data to the graph
-	var update = function(data) {
+	var update = function(athlete) {
+		var data = athlete.performances;
+		var color = trackr.colors(trackr.athlete_ids[athlete.name]);
 		var transition_duration = 750;
+		
+		// remove races without times
+		data = $.grep(data, function(d) {
+			return d.mark != "NT";
+		});
 		
 		data.forEach(function(d) {
 			d.date = parseDate(nice_date(d.date));
 			d.mark = time_to_seconds(d.mark);
 		});
 		
-		trackr.event_data[event_name] = trackr.event_data[event_name].concat(data);
+		trackr.event_data[event_name].push(data);
 		var all_data = trackr.event_data[event_name]
+		var flat = flatten(all_data);
 		
-		x.domain(d3.extent(trackr.event_data[event_name], function(d) { return d.date; }));
-		y.domain(d3.extent(trackr.event_data[event_name], function(d) { return d.mark; }));
+		x.domain(d3.extent(flat, function(d) { return d.date; }));
+		y.domain(d3.extent(flat, function(d) { return d.mark; }));
 		
 		// JOIN DOTS
 		var dots = svg.selectAll(".dot")
-			.data(all_data);
+			.data(flat);
 		
-		var paths = svg.selectAll(".line");
+		// Join lines
+		var paths = svg.selectAll(".line")
+			.data(all_data); // ?????????d
 				
 		var t = svg.transition().duration(transition_duration);
 		t.select(".x.axis").call(xAxis);
@@ -189,34 +209,35 @@ var init_graph = function(event_name, panel) {
 			.attr("cy", function(d) { return y(d.mark); });
 			
 		paths.transition().duration(transition_duration)
-			.attr("d", line(data));
+			.attr("d", line);
 		
 		
 		// ENTER
 		
-		svg.append("path")
+		paths.enter().append("path")
 			.attr("class", "line")
-			.attr("d", line(data))
+			.attr("d", line)
+			.style("stroke", color)
 			.style("fill-opacity", 1e-6)
 			.transition().duration(transition_duration)
 				.style("fill-opacity", 1);
 		
 		
-		dots.enter()
-			.append("circle")
+		dots.enter().append("circle")
 			.attr("class", "dot")
 			.attr("r", 5)
 			.attr("cx", function(d) { return x(d.date); })
 			.attr("cy", function(d) { return y(d.mark); })
 			.on('mouseover', tip.show)
 			.on('mouseout', tip.hide)
+			.style("fill", color)
 			.style("fill-opacity", 1e-6)
 			.transition().duration(transition_duration)
 				.style("fill-opacity", 1);
 	};
 	
-	panel.on("new-athlete", function(event, performances) {
-		update(performances);
+	panel.on("new-athlete", function(event, data) {
+		update(data);
 	});
 };
 
@@ -254,6 +275,10 @@ var tooltip_html = function(performance) {
 			+ "<p>Place: <span>" + performance.place + "</span></p>";
 };
 
+// flattens an array of arrays
+var flatten = function(arr) {
+	return [].concat.apply([], arr);
+}
 
 var new_panel = function(event) {
 	var panel = $("<article class='panel' id='panel-" + trackr.panel_sequence + "'></article>");
@@ -287,6 +312,17 @@ var sort_by_event = function(races) {
 		events[event_name].push(race);
 	};
 	return events;
+};
+
+// generate label for athlete
+var new_label = function(name) {
+	var athlete_id = trackr.athlete_ids[name];
+	var color = trackr.colors(athlete_id);
+	var label = $("<div class='label'></div>");
+	label.append("<input type='checkbox' id='athlete-" + athlete_id + "' checked>");
+	label.append("<label for='athlete-" + athlete_id + "'>" + name + "<span class='color-label' style='background-color:"+ color +";'></span></label>");
+	
+	return label;
 };
 
 

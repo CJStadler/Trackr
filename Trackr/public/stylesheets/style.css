@@ -55,6 +55,28 @@ a {
 	cursor: pointer;
 }
 
+/* ################################ Key Styles ################ */
+
+#athletes-key  {
+	margin: auto;
+	margin-top: 10px;
+	width: 500px;
+}
+
+.label {
+	margin: 5px 20px;
+	display: inline-block;
+}
+
+.color-label {
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	margin-left: 5px;
+	margin-top: 2px;
+	vertical-align: top;
+}
+
 /* ################################ Viz styles ################ */
 
 .axis path,
@@ -66,12 +88,7 @@ a {
 
 .line {
   fill: none;
-  stroke: steelblue;
   stroke-width: 2px;
-}
-
-.dot {
-	fill: steelblue;
 }
 
 .dot:hover {
