@@ -215,7 +215,7 @@ var init_graph = function(event_name, panel) {
 		// ENTER
 		
 		paths.enter().append("path")
-			.attr("class", "line")
+			.attr("class", "line athlete-"+trackr.athlete_ids[athlete.name])
 			.attr("d", line)
 			.style("stroke", color)
 			.style("fill-opacity", 1e-6)
@@ -224,7 +224,7 @@ var init_graph = function(event_name, panel) {
 		
 		
 		dots.enter().append("circle")
-			.attr("class", "dot")
+			.attr("class", "dot athlete-"+trackr.athlete_ids[athlete.name])
 			.attr("r", 5)
 			.attr("cx", function(d) { return x(d.date); })
 			.attr("cy", function(d) { return y(d.mark); })
@@ -319,7 +319,12 @@ var new_label = function(name) {
 	var athlete_id = trackr.athlete_ids[name];
 	var color = trackr.colors(athlete_id);
 	var label = $("<div class='label'></div>");
-	label.append("<input type='checkbox' id='athlete-" + athlete_id + "' checked>");
+	var input = $("<input type='checkbox' id='athlete-" + athlete_id + "' checked>");
+	// add listener
+	input.change(function() {
+		$(".athlete-" + athlete_id).toggle();
+	});
+	label.append(input);
 	label.append("<label for='athlete-" + athlete_id + "'>" + name + "<span class='color-label' style='background-color:"+ color +";'></span></label>");
 	
 	return label;
