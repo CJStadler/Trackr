@@ -16,7 +16,6 @@ a {
 }
 
 #top-bar {
-	width: 100%;
 	padding: 15px;
 	text-align: center;
 	background-color: white;
@@ -60,7 +59,7 @@ a {
 #athletes-key  {
 	margin: auto;
 	margin-top: 10px;
-	width: 500px;
+	width: 800px;
 }
 
 .label {

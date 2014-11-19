@@ -162,10 +162,10 @@ var init_graph = function(event_name, panel) {
 		.call(yAxis)
 		.append("text")
 		.attr("transform", "rotate(-90)")
-		.attr("y", 6)
-		.attr("dy", ".71em")
-		.style("text-anchor", "end")
-		.text("Time");
+		.attr("y", 6);
+		//.attr("dy", ".71em")
+		//.style("text-anchor", "end");
+		//.text("Time");
 		
 	// add data to the graph
 	var update = function(athlete) {
