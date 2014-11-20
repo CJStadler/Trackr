@@ -27,6 +27,9 @@ var init_get_url = function() {
 	$('#get-url').submit(function(event) {
 		event.preventDefault();
 		
+		if ($("#welcome-tip").is(":visible")) {
+			$("#welcome-tip").hide();
+		};
 		var form_data = $(this).serialize();
 		
 		$.ajax({

@@ -17,23 +17,24 @@ router.get('/api', function(req, res) {
 
 var get_data_from_url = function(url, res) {
 	
-	var full_url = "http://www.tfrrs.org/" + url;
+	var full_url = "http://www.tfrrs.org/athletes/" + url;
 	
 	var type, id;
 	// strip trailing ".html"
 	if (url.slice(-5) == ".html") { url = url.slice(0,-5); };
 	
 	// get type and id
-	if (url.slice(0,8) == "athletes") {
+	//if (url.slice(0,8) == "athletes") {
 		type = "athlete";
-		id = parseInt(url.slice(9));
-	} else if (url.slice(0,5) == "teams") {
+		id = parseInt(url);
+	/*} else if (url.slice(0,5) == "teams") {
 		type = "team";
 		id = parseInt(url.slice(6));
 	} else {
 		res.json({error: "not a valid url. 'athletes/:id' or 'teams/:id'."});
 		return;
 	};
+	*/
 	
 	// scrape
 	var data = {}
