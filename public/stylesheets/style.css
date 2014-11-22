@@ -57,6 +57,22 @@ a {
 
 	height: 380px;
 	padding: 5px;
+	vertical-align: top;
+}
+
+.panel.sortable-dragging {
+	opacity: .5;
+}
+
+.placeholder {
+	display: inline-block;
+	margin: 20px;
+	width: 550px;
+
+	height: 380px;
+	padding: 5px;
+	border: 2px dashed #DB3232;
+	vertical-align: top;
 }
 
 .panel h1 {

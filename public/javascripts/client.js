@@ -6,6 +6,7 @@ $(document).ready(function() {
 	init_data();
 	init_get_url();
 	init_sticky();
+	init_sortable();
 });
 
 var init_data = function() {
@@ -64,6 +65,7 @@ var viz_new_data = function(data) {
 	
 	// testing 
 	//$('#graphs').prepend("<article class='pane'></article>").text(data);
+	$('#graphs').sortable('reload');
 };
 
 var viz_athlete = function(data) {
@@ -351,5 +353,12 @@ var init_sticky = function() {
 		mn.removeClass(mns);
 		content.removeAttr("style");
 	  }
+	});
+};
+
+var init_sortable = function() {
+	$('#graphs').sortable({
+		items: '.panel',
+		placeholder: '<div class="placeholder"></div>'
 	});
 };
