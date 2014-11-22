@@ -1,11 +1,21 @@
-body {
+html,body {
 	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+body {
 	background-image: url('/images/bg-graph-paper.gif');
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+#wrapper {
+	position: relative;
+	min-height: 100%;
+}
+
 #masthead {
-	margin: 10px 0;
+	margin: 0 0 10px;
 }
 
 #masthead h1 {
@@ -39,6 +49,10 @@ a {
 	font-size: 16px;
 }
 
+#content {
+	padding-bottom: 30px;
+}
+
 #welcome-tip {
 	display: block;
 	width: 500px;
@@ -48,47 +62,65 @@ a {
 	height: initial;
 	padding: 1px 15px;
 }
-.panel {
-	display: inline-block;
-	background-color: white;
-	box-shadow: 1px 1px 3px 2px #999999;
-	margin: 20px;
-	width: 550px;
 
+#graphs {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.panel, .placeholder {
+	display: inline-block;
+	margin: 20px 0 0 20px;
+	width: 550px;
 	height: 380px;
 	padding: 5px;
 	vertical-align: top;
+	box-sizing: border-box;
 }
 
-.panel.sortable-dragging {
-	opacity: .5;
+.panel {
+	background-color: white;
+	text-align: left;
+	box-shadow: 1px 1px 3px 2px #999999;
 }
 
 .placeholder {
-	display: inline-block;
-	margin: 20px;
-	width: 550px;
-
-	height: 380px;
-	padding: 5px;
 	border: 2px dashed #DB3232;
-	vertical-align: top;
+	background: none;
 }
 
 .panel h1 {
-	margin: 5px 0 20px 5px;
+	margin: 5px 0 0 5px;
 	color: #133973;
 }
 
 
 .close-panel {
-	padding: 5px;
+	padding: 0 0 5px 5px;
 	height: 15px;
 	width: 12px;
 	float: right;
 	text-align: left;
 	font: bold 15px arial, sans-serif;
 	cursor: pointer;
+}
+
+#site-footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	background-color: #000000;
+	color: #FFFFFF;
+	height: 34px;
+	width: 100%;
+	box-sizing: border-box;
+	padding: 2px;
+	text-align: center;
+}
+
+#tfrrs-logo {
+	height: 30px;
+	margin: 0 0 -10px 2px;
 }
 
 /* ################################ Key Styles ################ */

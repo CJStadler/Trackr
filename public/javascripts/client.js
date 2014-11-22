@@ -101,9 +101,9 @@ var init_event_graph = function(event_name) {
 // based on http://bl.ocks.org/mbostock/3883245
 var init_graph = function(event_name, panel) {
 	trackr.event_data[event_name] = [];
-	var margin = {top: 20, right: 20, bottom: 20, left: 60},
+	var margin = {top: 20, right: 20, bottom: 20, left: 35},
 	width = panel.width() - margin.left - margin.right,
-	height = 300 - margin.top - margin.bottom;
+	height = 340 - margin.top - margin.bottom;
 
 	var parseDate = d3.time.format("%m/%d/%y").parse;
 	//var showMonth = d3.time.format("%m/%y");
@@ -123,7 +123,7 @@ var init_graph = function(event_name, panel) {
 
 	var yAxis = d3.svg.axis()
 		.scale(y)
-		.tickFormat(function(d) { return seconds_to_time(d); })
+		.tickFormat(function(d) { return short_time(d); })
 		.orient("left");
 
 	var line = d3.svg.line()
@@ -261,6 +261,10 @@ var time_to_seconds = function(time) {
 	}
 	return seconds;
 }
+
+var short_time = function(total) {
+	return seconds_to_time(total).slice(0,-3);
+};
 
 // take the number of seconds and format it for display
 var seconds_to_time = function(total) {
