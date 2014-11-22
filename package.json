@@ -2,7 +2,7 @@
   "name": "Trackr",
   "version": "0.0.0",
   "private": true,
-  "main": "app.js",
+  "main": "app",
   "scripts": {
     "start": "node ./bin/www"
   },
