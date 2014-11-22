@@ -4,11 +4,15 @@ body {
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+#masthead {
+	margin: 10px 0;
+}
+
 #masthead h1 {
-	font-family: 'Rock Salt', cursive;
-	font-size: 40px;
+	font-family: 'Patrick Hand SC', sans-serif;
+	font-size: 65px;
 	color: #DB3232;
-	margin: 10px 40px;
+	margin: 0 40px;
 }
 
 a {
@@ -17,10 +21,18 @@ a {
 
 #top-bar {
 	padding: 15px;
+	box-sizing: border-box;
 	text-align: center;
 	background-color: white;
 	box-shadow: 1px 1px 3px 2px #999999;
 	font-size: 18px;
+	z-index: 50;
+}
+
+#top-bar.sticky {
+	position: fixed;
+	top: 0;
+	width: 100%;
 }
 
 #top-bar label {
@@ -69,6 +81,7 @@ a {
 	margin: auto;
 	margin-top: 10px;
 	width: 800px;
+	max-width: 100%;
 }
 
 .label {

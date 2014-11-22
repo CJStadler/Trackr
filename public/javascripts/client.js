@@ -5,6 +5,7 @@
 $(document).ready(function() {
 	init_data();
 	init_get_url();
+	init_sticky();
 });
 
 var init_data = function() {
@@ -30,6 +31,7 @@ var init_get_url = function() {
 		if ($("#welcome-tip").is(":visible")) {
 			$("#welcome-tip").hide();
 		};
+		
 		var form_data = $(this).serialize();
 		
 		$.ajax({
@@ -69,7 +71,9 @@ var viz_athlete = function(data) {
 	trackr.athlete_sequence++;
 	
 	// add athlete label to key
-	$("#athletes-key").append(new_label(data.athlete.name));
+	var key = $("#athletes-key")
+	key.append(new_label(data.athlete.name));
+	if (! key.is(":visible")) { key.show(); };
 	
 	var events = sort_by_event(data.athlete.races);
 	$.each(events, function(event_name, performances) {
@@ -333,5 +337,19 @@ var new_label = function(name) {
 	return label;
 };
 
+var init_sticky = function() {
+	var mn = $("#top-bar");
+    var mns = "sticky";
+	var content = $('#content');
 
-
+	$(window).scroll(function() {
+	  var hdr = $('#masthead').outerHeight(true)
+	  if( $(this).scrollTop() > hdr ) {
+		mn.addClass(mns);
+		content.css("padding-top", mn.outerHeight(true) + "px");
+	  } else {
+		mn.removeClass(mns);
+		content.removeAttr("style");
+	  }
+	});
+};

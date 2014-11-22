@@ -2,18 +2,18 @@ extends layout
 
 block content
 	header#masthead
-		h1 Trackr
+		h1 TRACKR
 		
 	section#top-bar
 		form#get-url
 			label(for="tfrrs_url") tffrs.org/athletes/
 			input(type="text", name="tfrrs_url", id="tfrrs_url")
 			input(type="submit", value="Get Data")
-		div#athletes-key
+		div#athletes-key(style="display:none;")
 	section#content
 		div#welcome-tip.panel
 			p Welcome to Trackr! This is an early build and it may be buggy. Feel free to send me any bug reports or suggestions!
-			p To visualize an athlete's races find their tfrrs page, copy their id from the url, and enter it above.
+			p To visualize an athlete's races: find their tfrrs page, copy their id from the url, and enter it above.
 			p E.g. my tfrrs page is tffrs.org/athletes/3273206.html, so my id is 3273206.
 			p Add multiple athletes to compare them.
 		div#graphs
