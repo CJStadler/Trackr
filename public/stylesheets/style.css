@@ -1,3 +1,8 @@
+@font-face {
+    font-family: "Yesterdays Meal";
+    src: url(YESTERDAYSMEAL.ttf);
+}
+
 html,body {
 	margin: 0;
 	padding: 0;
@@ -16,11 +21,12 @@ body {
 
 #masthead {
 	margin: 0 0 10px;
+	padding-top: 10px;
 }
 
 #masthead h1 {
-	font-family: 'Patrick Hand SC', sans-serif;
-	font-size: 65px;
+	font-family: "Yesterdays Meal", sans-serif;
+	font-size: 50px;
 	color: #DB3232;
 	margin: 0 40px;
 }
