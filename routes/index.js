@@ -65,7 +65,7 @@ var scrape_athlete_page = function($) {
 
 	var athlete = {};
 
-	$('#athlete').find(".title").find("h2").each(function() {
+	$("#athlete .title h2").each(function() {
 		athlete.name = $(this).text().trim();
 	});
 
@@ -73,7 +73,7 @@ var scrape_athlete_page = function($) {
 	athlete.races = [];
 
 	// Bests Logic
-	var headings = $(".topperformances > :first-child > :first-child > :first-child").children().toArray();
+	var headings = $(".topperformances .title tr").children().toArray();
 	$(".marked").each(function(){
 		var numBefore = $(this).parent().prevAll().length;
 		var eventName = headings[numBefore].children[0].children[0].data.replace(/\s+/g, '');
