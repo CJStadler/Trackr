@@ -1,4 +1,5 @@
-var React = require('react');
+var React = require('react'),
+    d3 = require('d3');
 
 var GetAthleteForm = React.createClass({displayName: "GetAthleteForm",
     getInitialState: function() {
@@ -13,8 +14,20 @@ var GetAthleteForm = React.createClass({displayName: "GetAthleteForm",
 		e.preventDefault();
 		var id = this.state.tfrrs_id;
 		console.log(id);
-        this.props.add_athlete(id);
+        var url = "/api?tfrrs_id=" + id;
+        d3.json(url, function(error, data) {
+            if (error) {
+                return console.warn(error);
+            } else {
+                this.props.add_athlete(data.athlete);
+                this.clear_input();
+            }
+        }.bind(this));
 	},
+
+    clear_input: function() {
+        this.setState({tfrrs_id: ""});
+    },
 
     render: function() {
         return (

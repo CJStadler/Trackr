@@ -21,13 +21,16 @@ var App = React.createClass({displayName: "App",
 					athletes: this.state.athletes, 
 					add_athlete: this.add_athlete, 
 					remove_athlete: this.remove_athlete}), 
-				React.createElement(ChartsDisplay, {data: this.state})
+				React.createElement(ChartsDisplay, null)
 			)
 		);
 	},
 
 	add_athlete: function(athlete) {
-		console.log("adding athlete: " + athlete)
+		var athletes = this.state.athletes.slice();
+		athletes.push(athlete);
+		this.setState({athletes: athletes});
+		console.log("adding athlete: " + athlete.name)
 	},
 });
 

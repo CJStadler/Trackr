@@ -5,18 +5,18 @@ var request = require('request');
 var cheerio = require('cheerio');
 
 router.get('/', function(req, res) {
-	var url = req.query.tfrrs_url;
+	var url = req.query.tfrrs_id;
 	get_data_from_url(url, res);
 });
 
 var get_data_from_url = function(url, res) {
-	
+
 	var full_url = "http://www.tfrrs.org/athletes/" + url;
-	
+
 	var type, id;
 	// strip trailing ".html"
 	if (url.slice(-5) == ".html") { url = url.slice(0,-5); };
-	
+
 	// get type and id
 	//if (url.slice(0,8) == "athletes") {
 		type = "athlete";
@@ -29,14 +29,14 @@ var get_data_from_url = function(url, res) {
 		return;
 	};
 	*/
-	
+
 	// scrape
 	var data = {}
 	request.get(full_url, function(error, response, html){
 		data = {};
 		if(!error){
 			var $ = cheerio.load(html);
-			
+
 			if (type == "athlete") {
 				data.athlete = scrape_athlete_page($);
 				data.athlete.id = id;
@@ -48,7 +48,7 @@ var get_data_from_url = function(url, res) {
 		} else {
 			data.error = "error getting tfrrs page.";
 		};
-		
+
 		res.json(data);
 	});
 
@@ -71,12 +71,12 @@ var scrape_athlete_page = function($) {
 	$(".marked").each(function(){
 		var numBefore = $(this).parent().prevAll().length;
 		var eventName = headings[numBefore].children[0].children[0].data.replace(/\s+/g, '');
-		athlete.bests.push({event : eventName, time : $(this).text()});       
+		athlete.bests.push({event : eventName, time : $(this).text()});
 	});
 
 	//Loop through data for each table entry for the athlete.
 	$('#results_data tr').each(function() {
-		
+
 		athlete.races.push({
 			"date"  : $(this).find(".date").text().trim(),
 			"meet"  : $(this).find(".meet").text().trim(),
@@ -85,7 +85,7 @@ var scrape_athlete_page = function($) {
 			"place" : $(this).find(".place").text().trim()
 		});
 	});
-	
+
 	return athlete;
 }
 

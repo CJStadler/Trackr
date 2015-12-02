@@ -21,13 +21,16 @@ var App = React.createClass({
 					athletes={this.state.athletes}
 					add_athlete={this.add_athlete}
 					remove_athlete={this.remove_athlete}/>
-				<ChartsDisplay data={this.state} />
+				<ChartsDisplay />
 			</div>
 		);
 	},
 
 	add_athlete: function(athlete) {
-		console.log("adding athlete: " + athlete)
+		var athletes = this.state.athletes.slice();
+		athletes.push(athlete);
+		this.setState({athletes: athletes});
+		console.log("adding athlete: " + athlete.name)
 	},
 });
 
