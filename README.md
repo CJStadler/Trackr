@@ -10,3 +10,17 @@ Data is from tfrrs.org.
 Visualizations are generated using d3.js.
 
 Currently hosted at http://trackr.cjstadler.com
+
+
+React implementation
+====================
+
+take athlete ids as params, prerender on server.
+
+history.pushState()?
+
+Server side render like?
+
+app = appReactComponent(parameters)
+page = React.renderToString(app)
+res.send(page)
