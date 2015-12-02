@@ -1,16 +1,26 @@
 var React = require('react');
 var ChartsDisplay = require('./components/charts_display.js');
-var GetAthleteForm = require('./components/get_athlete_form.js');
-var AthletesKey = require('./components/athletes_key.js');
+var Controller = require('./components/controller.js');
 
 var App = React.createClass({displayName: "App",
+
+	getInitialState: function() {
+		return {
+			athletes: []
+		};
+    },
+
+	componentWillReceiveProps: function(new_props) {
+		this.setState(new_props);
+	},
+
 	render: function() {
 		return (
 			React.createElement("div", null, 
-				React.createElement("section", {id: "top-bar"}, 
-					React.createElement(GetAthleteForm, {add_athlete: this.add_athlete}), 
-					React.createElement(AthletesKey, null)
-				), 
+				React.createElement(Controller, {
+					athletes: this.state.athletes, 
+					add_athlete: this.add_athlete, 
+					remove_athlete: this.remove_athlete}), 
 				React.createElement(ChartsDisplay, {data: this.state})
 			)
 		);

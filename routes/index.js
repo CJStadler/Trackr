@@ -5,11 +5,12 @@ var request = require('request');
 var cheerio = require('cheerio');
 var App = require('../app/build/app.js');
 var React = require('react');
+var ReactDOMServer = require('react-dom/server');
 
 /* GET home page. */
 router.get('/', function(req, res) {
 	var data = req;
-	var html =  React.renderToString(React.createElement(App, {}));
+	var html =  ReactDOMServer.renderToString(React.createElement(App, {}));
 	res.render('index', {app: html});
 	console.log('GET /');
 });

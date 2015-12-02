@@ -1,7 +1,6 @@
 var React = require('react'),
+	ReactDOM = require('react-dom'),
 	App = require('./app.js');
 
 // Run react on the client against the HTML generated on the server
-React.render(
-    <App />, document.getElementById('app')
-);
+ReactDOM.render(<App />, document.getElementById('app'));
