@@ -7,7 +7,9 @@ var Controller = React.createClass({
         return (
             <section id='top-bar'>
                 <GetAthleteForm add_athlete={this.props.add_athlete} />
-                <AthletesKey remove_athlete={this.props.remove_athlete} />
+                <AthletesKey
+                    athletes={this.props.athletes}
+                    set_athlete_state={this.props.set_athlete_state} />
             </section>
         );
     }

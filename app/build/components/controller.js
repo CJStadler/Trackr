@@ -7,7 +7,9 @@ var Controller = React.createClass({displayName: "Controller",
         return (
             React.createElement("section", {id: "top-bar"}, 
                 React.createElement(GetAthleteForm, {add_athlete: this.props.add_athlete}), 
-                React.createElement(AthletesKey, {remove_athlete: this.props.remove_athlete})
+                React.createElement(AthletesKey, {
+                    athletes: this.props.athletes, 
+                    set_athlete_state: this.props.set_athlete_state})
             )
         );
     }
