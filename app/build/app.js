@@ -6,14 +6,22 @@ var d3 = require('d3');
 var App = React.createClass({displayName: "App",
 
 	getInitialState: function() {
+		var athletes = [];
+		if (this.props.athletes) {
+			athletes = this.props.athletes.map(function(athlete, i) {
+				athlete.active = true;
+				athlete.color = this.get_color(i);
+				return athlete;
+			}.bind(this));
+
+		}
 		return {
-			athletes: []
+			athletes: athletes
 		};
     },
 
-	get_color: d3.scale.category10(),
-
 	componentWillReceiveProps: function(new_props) {
+		console.log("props: " + new_props);
 		this.setState(new_props);
 	},
 
@@ -24,10 +32,12 @@ var App = React.createClass({displayName: "App",
 					athletes: this.state.athletes, 
 					add_athlete: this.add_athlete, 
 					set_athlete_state: this.set_athlete_state}), 
-				React.createElement(ChartsDisplay, null)
+				React.createElement(ChartsDisplay, {athletes: this.state.athletes})
 			)
 		);
 	},
+
+	get_color: d3.scale.category10(),
 
 	add_athlete: function(athlete) {
 		var athletes = this.state.athletes.slice();
