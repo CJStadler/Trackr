@@ -151,7 +151,9 @@ var draw_points = function(races) {
     dots.enter().append("circle")
         .attr("class", "dot")
         .attr("r", 5)
-        .attr("cx", function(d) { return x(d.date); })
+        .attr("cx", function(d) {
+            return x(d.date);
+        })
         .attr("cy", function(d) { return y(d.mark); })
         // .on('mouseover', tip.show)
         // .on('mouseout', tip.hide)
@@ -258,6 +260,7 @@ module.exports = AthletesKey;
 
 },{"./athlete_label.js":4,"react":169}],6:[function(require,module,exports){
 var React = require('react'),
+    d3 = require('d3'),
     chart_builder = require('../chart_builder.js');
 
 
@@ -282,6 +285,8 @@ var Chart = React.createClass({displayName: "Chart",
         this.props.athletes.forEach(function(a){
             a.races.forEach(function(r) {
                 if (r.event === event && r.mark !== "NT") {
+                    r.date = parseDate(nice_date(r.date));
+                    r.mark = time_to_seconds(r.mark);
                     races.push(r);
                 }
             });
@@ -291,13 +296,34 @@ var Chart = React.createClass({displayName: "Chart",
     },
 
     chart_id: function() {
-        return "chart-" + this.props.event
+        return "chart-" + this.props.event.replace(',', '');
     },
 });
 
+var parseDate = d3.time.format("%m/%d/%y").parse;
+
+// tfrrs dates are messy so we'll clean and standardize them
+var nice_date = function(date) {
+	date = date.slice(-8); // sometimes the dates are in ranges so we'll just take the last one
+	date = date.replace(/-/g, "/");
+	return date;
+};
+
+// takes a string representing a time and returns the number of seconds.
+var time_to_seconds = function(time) {
+	var seconds = 0.0;
+	var arr = time.split(":").reverse();
+	var len = arr.length;
+	seconds += parseFloat(arr[0]); // seconds
+	if (len > 1) {
+		seconds += parseInt(arr[1])*60; // minutes
+	}
+	return seconds;
+}
+
 module.exports = Chart;
 
-},{"../chart_builder.js":2,"react":169}],7:[function(require,module,exports){
+},{"../chart_builder.js":2,"d3":10,"react":169}],7:[function(require,module,exports){
 var React = require('react'),
     Chart = require('./chart.js');
 
