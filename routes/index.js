@@ -26,7 +26,6 @@ router.get('/', function(req, res) {
 		// requests are done
 		when.all(promises).then(function (athletes) {
     		console.log("Finished " + promises.length + " promises");
-			console.log(athletes);
 			render_app(athletes, res);
 		});
 

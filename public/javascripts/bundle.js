@@ -7,18 +7,21 @@ var d3 = require('d3');
 var App = React.createClass({displayName: "App",
 
 	getInitialState: function() {
-		var athletes = [];
-		if (this.props.athletes) {
-			athletes = this.props.athletes.map(function(athlete, i) {
-				athlete.active = true;
-				athlete.color = this.get_color(i);
-				return athlete;
-			}.bind(this));
 
-		}
-		return {
-			athletes: athletes
+		var state = {
+			athletes: [],
+			events: []
 		};
+
+		if (this.props.athletes) {
+			// set attributes on athletes
+			state.athletes = this.add_default_attributes_to_athletes(this.props.athletes);
+
+			// get events
+			state.events = this.get_events_from_athletes(this.props.athletes);
+		}
+
+		return state;
     },
 
 	componentWillReceiveProps: function(new_props) {
@@ -33,7 +36,7 @@ var App = React.createClass({displayName: "App",
 					athletes: this.state.athletes, 
 					add_athlete: this.add_athlete, 
 					set_athlete_state: this.set_athlete_state}), 
-				React.createElement(ChartsDisplay, {athletes: this.state.athletes})
+				React.createElement(ChartsDisplay, {athletes: this.state.athletes, events: this.state.events})
 			)
 		);
 	},
@@ -45,7 +48,54 @@ var App = React.createClass({displayName: "App",
 		athlete.active = true;
 		athlete.color = this.get_color(athletes.length);
 		athletes.push(athlete);
-		this.setState({athletes: athletes});
+		// re create events
+		var events = this.get_events_from_athletes(athletes);
+		this.setState({athletes: athletes, events: events});
+	},
+
+	add_default_attributes_to_athletes: function(athletes) {
+		return this.props.athletes.map(function(athlete, i) {
+			athlete.active = true;
+			athlete.color = this.get_color(i);
+			return athlete;
+		}.bind(this));
+	},
+
+	// get an array of events
+	// e.g. [
+	//     {name: '5000',
+	// 		   athletes: {name: []}
+	// 	   },
+	// 	   {}
+	// ]
+	get_events_from_athletes: function(athletes) {
+		var event;
+        var array = [];
+        var object = athletes.reduce(function(events, athlete) {
+            // e.g. {'5000': {name: '5000', athletes:{'Mike Trout': []}}}
+			var athlete_races = []
+            athlete.races.forEach(function(race) {
+				if (race.mark != "NT") {
+					race.color = athlete.color;
+					race.key = Date.now() + race.mark;
+	                var event;
+	                if (! (race.event in events)) {
+	                    events[race.event] = {name: race.event, races: [], athletes: {}};
+	                }
+	                if (! (athlete.name in events[race.event].athletes)) {
+	                    events[race.event].athletes[athlete.name] = [];
+	                }
+	                events[race.event].athletes[athlete.name].push(race);
+					events[race.event].races.push(race);
+				}
+            });
+            return events;
+        }, {});
+		// turn the object into an array
+        for (event in object) {
+            array.push(object[event]);
+        }
+        return array;
 	},
 
 	find_athlete_index: function(id) {
@@ -60,10 +110,6 @@ var App = React.createClass({displayName: "App",
 		var athlete = this.state.athletes[index];
 		athlete.active = active;
 		this.setState({athletes: athletes});
-	},
-
-	next_color: function() {
-		return "blue";
 	}
 });
 
@@ -72,124 +118,152 @@ module.exports = App;
 },{"./components/charts_display.js":7,"./components/controller.js":8,"d3":10,"react":169}],2:[function(require,module,exports){
 var d3 = require('d3');
 
-var svg, x, y, xAxis, yAxis, line,
-    height = 300,
-    width = 500,
-    margin = {top: 20, right: 20, bottom: 20, left: 35},
-    inner_height = 300 - margin.top - margin.bottom,
-    inner_width = 500 - margin.right - margin.left,
-    transition_duration = 750;
+var chart_builder = function() {
 
-var init_chart = function(chart_id) {
-    // Add svg
-    svg = d3.select("#" + chart_id)
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var svg, x, y, xAxis, yAxis, line,
+        height = 300,
+        width = 500,
+        margin = {top: 20, right: 20, bottom: 20, left: 35},
+        inner_height = 300 - margin.top - margin.bottom,
+        inner_width = 500 - margin.right - margin.left,
+        transition_duration = 750;
 
-    // init variables
-    x = d3.time.scale()
-        .range([0, inner_width]);
+    var init_chart = function(chart_id) {
+        // Add svg
+        svg = d3.select("#" + chart_id)
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    y = d3.scale.linear()
-        .range([inner_height, 0]);
+        // init variables
+        x = d3.time.scale()
+            .range([0, inner_width]);
 
-    xAxis = d3.svg.axis()
-        .scale(x)
-        .ticks(7)
-        //.tickFormat(function(d) { return showMonth(d); })
-        .orient("bottom");
+        y = d3.scale.linear()
+            .range([inner_height, 0]);
 
-    yAxis = d3.svg.axis()
-        .scale(y)
-        .tickFormat(function(d) { return short_time(d); })
-        .orient("left");
+        xAxis = d3.svg.axis()
+            .scale(x)
+            .ticks(7)
+            //.tickFormat(function(d) { return showMonth(d); })
+            .orient("bottom");
 
-    line = d3.svg.line()
-            .x(function(d) { return x(d.date); })
-            .y(function(d) { return y(d.mark); });
+        yAxis = d3.svg.axis()
+            .scale(y)
+            .tickFormat(function(d) { return short_time(d); })
+            .orient("left");
 
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + inner_height + ")")
-        .call(xAxis);
+        line = d3.svg.line()
+                .x(function(d) { return x(parseDate(d.date)); })
+                .y(function(d) { return y(time_to_seconds(d.mark)); });
 
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis)
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6);
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + inner_height + ")")
+            .call(xAxis);
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6);
+    };
+
+    var update_chart =  function(event) {
+        x.domain(d3.extent(event.races, function(d) { return parseDate(d.date); }));
+        y.domain(d3.extent(event.races, function(d) { return time_to_seconds(d.mark); }));
+
+        var t = svg.transition().duration(transition_duration);
+        t.select(".x.axis").call(xAxis);
+        t.select(".y.axis").call(yAxis);
+
+        draw_points(event.races);
+        draw_lines(event.athletes);
+    };
+
+    var draw_points = function(races) {
+
+        // JOIN
+        var dots = svg.selectAll(".dot")
+            .data(races, function(d) { return d.key; });
+
+        // UPDATE
+    	dots.transition().duration(transition_duration)
+    		.attr("cx", function(d) { return x(parseDate(d.date)); })
+    		.attr("cy", function(d) { return y(time_to_seconds(d.mark)); });
+
+        // ENTER
+        dots.enter().append("circle")
+            .attr("class", "dot")
+            .attr("r", 5)
+            .attr("cx", function(d) {
+                return x(parseDate(d.date));
+            })
+            .attr("cy", function(d) {
+                return y(time_to_seconds(d.mark));
+            })
+            // .on('mouseover', tip.show)
+            // .on('mouseout', tip.hide)
+            .style("fill", function(d) { return d.color; })
+            .style("fill-opacity", 1e-6)
+            .transition().duration(transition_duration)
+                .style("fill-opacity", 1);
+    };
+
+    var draw_lines = function(races_by_athlete_name) {
+
+    };
+
+    var parseDate = function(d) {
+        return d3.time.format("%m/%d/%y").parse(nice_date(d));
+    };
+
+    // tfrrs dates are messy so we'll clean and standardize them
+    var nice_date = function(date) {
+    	date = date.slice(-8); // sometimes the dates are in ranges so we'll just take the last one
+    	date = date.replace(/-/g, "/");
+    	return date;
+    };
+
+    // takes a string representing a time and returns the number of seconds.
+    var time_to_seconds = function(time) {
+    	var seconds = 0.0;
+    	var arr = time.split(":").reverse();
+    	var len = arr.length;
+    	seconds += parseFloat(arr[0]); // seconds
+    	if (len > 1) {
+    		seconds += parseInt(arr[1])*60; // minutes
+    	}
+    	return seconds;
+    };
+
+    //var showMonth: d3.time.format("%m/%y");
+    //var parseTime: d3.time.format("%M:%S.%L").parse;
+
+    var short_time = function(total) {
+        return seconds_to_time(total).slice(0,-3);
+    };
+
+    // take the number of seconds and format it for display
+    var seconds_to_time = function(total) {
+        var minutes = Math.floor(total/60);
+        var seconds = total - minutes*60;
+        var divider;
+        if (seconds < 10) {
+            divider = ":0";
+        } else {
+            divider = ":";
+        }
+        return minutes + divider + seconds.toFixed(2);
+    };
+
+    return {init: init_chart, update: update_chart};
 };
 
-var update_chart =  function(races) {
-    x.domain(d3.extent(races, function(d) { return d.date; }));
-    y.domain(d3.extent(races, function(d) { return d.mark; }));
-
-    var t = svg.transition().duration(transition_duration);
-    t.select(".x.axis").call(xAxis);
-    t.select(".y.axis").call(yAxis);
-
-    draw_points(races);
-    draw_lines();
-};
-
-var draw_points = function(races) {
-
-    // JOIN
-    var dots = svg.selectAll(".dot")
-        .data(races);
-
-    // UPDATE
-	dots.transition().duration(transition_duration)
-		.attr("cx", function(d) { return x(d.date); })
-		.attr("cy", function(d) { return y(d.mark); });
-
-    // ENTER
-    dots.enter().append("circle")
-        .attr("class", "dot")
-        .attr("r", 5)
-        .attr("cx", function(d) {
-            return x(d.date);
-        })
-        .attr("cy", function(d) { return y(d.mark); })
-        // .on('mouseover', tip.show)
-        // .on('mouseout', tip.hide)
-        // .style("fill", color)
-        .style("fill-opacity", 1e-6)
-        .transition().duration(transition_duration)
-            .style("fill-opacity", 1);
-};
-
-var draw_lines = function() {
-
-};
-
-var parseDate = d3.time.format("%m/%d/%y").parse;
-//var showMonth: d3.time.format("%m/%y");
-//var parseTime: d3.time.format("%M:%S.%L").parse;
-
-var short_time = function(total) {
-    return seconds_to_time(total).slice(0,-3);
-};
-
-// take the number of seconds and format it for display
-var seconds_to_time = function(total) {
-    var minutes = Math.floor(total/60);
-    var seconds = total - minutes*60;
-    var divider;
-    if (seconds < 10) {
-        divider = ":0";
-    } else {
-        divider = ":";
-    }
-    return minutes + divider + seconds.toFixed(2);
-};
-
-
-module.exports = {init: init_chart, update: update_chart};
+module.exports = chart_builder;
 
 },{"d3":10}],3:[function(require,module,exports){
 var React = require('react'),
@@ -263,63 +337,29 @@ var React = require('react'),
     d3 = require('d3'),
     chart_builder = require('../chart_builder.js');
 
-
 var Chart = React.createClass({displayName: "Chart",
 
+    getInitialState: function() {
+        return {chart_builder: chart_builder()};
+    },
+
     componentDidMount: function() {
-        chart_builder.init(this.chart_id());
-        chart_builder.update(this.races_for_event());
+        this.state.chart_builder.init(this.chart_id());
+        this.state.chart_builder.update(this.props.event);
     },
 
     componentDidUpdate: function() {
-        chart_builder.update(this.races_for_event());
+        this.state.chart_builder.update(this.props.event);
     },
 
     render: function() {
         return React.createElement("div", {id: this.chart_id()})
     },
 
-    races_for_event: function() {
-        var races = [];
-        var event = this.props.event;
-        this.props.athletes.forEach(function(a){
-            a.races.forEach(function(r) {
-                if (r.event === event && r.mark !== "NT") {
-                    r.date = parseDate(nice_date(r.date));
-                    r.mark = time_to_seconds(r.mark);
-                    races.push(r);
-                }
-            });
-        });
-
-        return races;
-    },
-
     chart_id: function() {
-        return "chart-" + this.props.event.replace(',', '');
+        return "chart-" + this.props.event.name.replace(',', '');
     },
 });
-
-var parseDate = d3.time.format("%m/%d/%y").parse;
-
-// tfrrs dates are messy so we'll clean and standardize them
-var nice_date = function(date) {
-	date = date.slice(-8); // sometimes the dates are in ranges so we'll just take the last one
-	date = date.replace(/-/g, "/");
-	return date;
-};
-
-// takes a string representing a time and returns the number of seconds.
-var time_to_seconds = function(time) {
-	var seconds = 0.0;
-	var arr = time.split(":").reverse();
-	var len = arr.length;
-	seconds += parseFloat(arr[0]); // seconds
-	if (len > 1) {
-		seconds += parseInt(arr[1])*60; // minutes
-	}
-	return seconds;
-}
 
 module.exports = Chart;
 
@@ -334,60 +374,34 @@ var ChartsDisplay = React.createClass({displayName: "ChartsDisplay",
     },
 
     render: function() {
-        var charts = this.event_names().map(function(event) {
+        var charts = this.props.events.map(function(event) {
             return (
-                React.createElement("div", {className: "panel", id: "panel-" + event, key: event}, 
+                React.createElement("div", {className: "panel", id: "panel-" + event.name.replace(',', ''), key: event.name}, 
                     React.createElement("div", {className: "close-panel"}, "x"), 
-                    React.createElement("h1", null, event), 
+                    React.createElement("h1", null, event.name), 
                     React.createElement(Chart, {event: event, athletes: this.props.athletes})
                 )
             );
         }.bind(this));
         return React.createElement("div", {id: "charts-display"}, charts);
-    },
+    }
 
     // Get the names of all the events for which we have races
-    event_names: function() {
-        var events = [];
-        // TODO: more efficient search?
-        this.props.athletes.forEach(function(a) {
-            a.races.forEach(function(r) {
-                if (events.indexOf(r.event) === -1) {
-                    events.push(r.event);
-                }
-            });
-        });
+    // event_names: function() {
+    //     var events = [];
+    //     // TODO: more efficient search?
+    //     this.props.athletes.forEach(function(a) {
+    //         a.races.forEach(function(r) {
+    //             if (events.indexOf(r.event) === -1) {
+    //                 events.push(r.event);
+    //             }
+    //         });
+    //     });
+    //
+    //     return events;
+    // },
 
-        return events;
-    },
 
-    // Actually I don't think we need this
-    races_by_event: function() {
-        var array = [];
-        var object = this.props.athletes.reduce(function(events, athlete) {
-            // e.g. {'5000': {'Mike Trout': [race1, race2]}}
-            athlete.races.forEach(function(race) {
-                var event;
-                if (! (race.event in events)) {
-                    events[race.event] = {};
-                }
-                if (! (athlete.name in events[race.event])) {
-                    events[race.event][athlete.name] = []
-                }
-                events[race.event][athlete.name].push(race)
-                // if (race.event in events) {
-                //     events[race.event][athlete.name].push(race);
-                // } else {
-                //     events[race.event][athlete.name] = [race];
-                // }
-            });
-            return events;
-        }, {});
-        for (event in object) {
-            array.push({name: event, athletes: object[event]});
-        }
-        return array;
-    }
 });
 
 module.exports = ChartsDisplay;
