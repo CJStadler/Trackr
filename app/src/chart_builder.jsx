@@ -1,8 +1,11 @@
-var d3 = require('d3');
+var d3 = require('d3'),
+    d3_tip = require('d3-tip');
+
+d3_tip(d3);
 
 var chart_builder = function() {
 
-    var svg, x, y, xAxis, yAxis, line,
+    var svg, x, y, xAxis, yAxis, line, tip,
         height = 300,
         width = 500,
         margin = {top: 20, right: 20, bottom: 20, left: 35},
@@ -40,6 +43,30 @@ var chart_builder = function() {
         line = d3.svg.line()
                 .x(function(d) { return x(parseDate(d.date)); })
                 .y(function(d) { return y(time_to_seconds(d.mark)); });
+
+        tip = d3.tip()
+    		.attr('class', 'd3-tip')
+    		.offset(function(d) {
+    			var circle_offset = this.getBoundingClientRect().left;
+    			if (circle_offset < 150) {
+    				return [0, 8];
+    			} else {
+    				return [-8, 0];
+    			}
+    		})
+    		.direction(function(d) {
+    			var circle_offset = this.getBoundingClientRect().left;
+    			if (circle_offset < 150) {
+    				return 'e';
+    			} else {
+    				return 'n';
+    			}
+    		})
+    		.html(function(d) {
+    			return tooltip_html(d);
+    		});
+
+        svg.call(tip);
 
         svg.append("g")
             .attr("class", "x axis")
@@ -87,8 +114,8 @@ var chart_builder = function() {
             .attr("cy", function(d) {
                 return y(time_to_seconds(d.mark));
             })
-            // .on('mouseover', tip.show)
-            // .on('mouseout', tip.hide)
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide)
             .style("fill", function(d) { return d.color; })
             .style("fill-opacity", 1e-6)
             .transition().duration(transition_duration)
@@ -140,6 +167,16 @@ var chart_builder = function() {
             divider = ":";
         }
         return minutes + divider + seconds.toFixed(2);
+    };
+
+    // takes an object describing a performance and returns a nice readable string.
+    var tooltip_html = function(performance) {
+    	// var nice_date = d3.time.format("%m/%d/%y");
+    	return "<p>Meet: <span>" + performance.meet + "</span></p>" +
+    			"<p>Date: <span>" + parseDate(performance.date) + "</span></p>" +
+    			"<p>Event: <span>" + performance.event + "</span></p>" +
+    			"<p>Time: <span>" + performance.mark + "</span></p>" +
+    			"<p>Place: <span>" + performance.place + "</span></p>";
     };
 
     return {init: init_chart, update: update_chart};
