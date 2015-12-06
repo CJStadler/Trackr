@@ -278,6 +278,34 @@ iso.bootstrap(function (state, _, container) {
 	//ReactDOM.render(<App />, document.getElementById('app'));
 });
 
+// make the controller sticky
+var init_sticky = function() {
+	var bar = document.getElementById("top-bar");
+    var sticky_class = "sticky";
+	var content = document.getElementById('app');
+	var header = document.getElementById("masthead");
+
+	var header_height = header.offsetHeight;
+	var header_style = getComputedStyle(header);
+	header_height += parseInt(header_style.marginTop) + parseInt(header_style.marginBottom);
+
+	var bar_height = bar.offsetHeight;
+	var bar_style = getComputedStyle(bar);
+	bar_height += parseInt(bar_style.marginTop) + parseInt(bar_style.marginBottom);
+
+	window.addEventListener("scroll", function() {
+		if( document.body.scrollTop > header_height ) {
+			bar.classList.add(sticky_class);
+			content.style.paddingTop = bar_height + "px";
+		} else {
+			bar.classList.remove(sticky_class);
+			content.style.paddingTop = "";
+		}
+	});
+};
+
+init_sticky();
+
 },{"./app.js":1,"iso":11,"react":169,"react-dom":13}],4:[function(require,module,exports){
 var React = require('react');
 
