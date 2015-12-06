@@ -289,9 +289,9 @@ var chart_builder = function() {
 
     // takes an object describing a performance and returns a nice readable string.
     var tooltip_html = function(performance) {
-    	// var nice_date = d3.time.format("%m/%d/%y");
+    	var date = d3.time.format("%A %m/%d/%y")(parseDate(performance.date));
     	return "<p>Meet: <span>" + performance.meet + "</span></p>" +
-    			"<p>Date: <span>" + parseDate(performance.date) + "</span></p>" +
+    			"<p>Date: <span>" + date + "</span></p>" +
     			"<p>Event: <span>" + performance.event + "</span></p>" +
     			"<p>Time: <span>" + performance.mark + "</span></p>" +
     			"<p>Place: <span>" + performance.place + "</span></p>";
