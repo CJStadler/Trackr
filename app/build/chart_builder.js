@@ -120,6 +120,14 @@ var chart_builder = function() {
             .style("fill-opacity", 1e-6)
             .transition().duration(transition_duration)
                 .style("fill-opacity", 1);
+
+        // Exit
+        dots.exit()
+            .transition().duration(transition_duration)
+            .style("fill-opacity", 1e-6)
+            .attr("cx", function(d) { return x(parseDate(d.date)); })
+    		.attr("cy", function(d) { return y(time_to_seconds(d.mark)); })
+            .remove();
     };
 
     var draw_lines = function(races_by_athlete_name) {

@@ -73,21 +73,23 @@ var App = React.createClass({displayName: "App",
         var object = athletes.reduce(function(events, athlete) {
             // e.g. {'5000': {name: '5000', athletes:{'Mike Trout': []}}}
 			var athlete_races = []
-            athlete.races.forEach(function(race) {
-				if (race.mark != "NT") {
-					race.color = athlete.color;
-					race.key = Date.now() + race.mark;
-	                var event;
-	                if (! (race.event in events)) {
-	                    events[race.event] = {name: race.event, races: [], athletes: {}};
-	                }
-	                if (! (athlete.name in events[race.event].athletes)) {
-	                    events[race.event].athletes[athlete.name] = [];
-	                }
-	                events[race.event].athletes[athlete.name].push(race);
-					events[race.event].races.push(race);
-				}
-            });
+			if (athlete.active) {
+	            athlete.races.forEach(function(race) {
+					if (race.mark != "NT") {
+						race.color = athlete.color;
+						race.key = Date.now() + race.mark;
+		                var event;
+		                if (! (race.event in events)) {
+		                    events[race.event] = {name: race.event, races: [], athletes: {}};
+		                }
+		                if (! (athlete.name in events[race.event].athletes)) {
+		                    events[race.event].athletes[athlete.name] = [];
+		                }
+		                events[race.event].athletes[athlete.name].push(race);
+						events[race.event].races.push(race);
+					}
+	            });
+			}
             return events;
         }, {});
 		// turn the object into an array
@@ -107,8 +109,9 @@ var App = React.createClass({displayName: "App",
 		var athletes = this.state.athletes.slice();
 		var index = this.find_athlete_index(id);
 		var athlete = this.state.athletes[index];
-		athlete.active = active;
-		this.setState({athletes: athletes});
+		athlete.active = active
+		var events = this.get_events_from_athletes(athletes);
+		this.setState({athletes: athletes, events: events});
 	}
 });
 
