@@ -1,9 +1,6 @@
 var React = require('react');
 
 var AthleteLabel = React.createClass({
-    toggle_athlete: function() {
-        this.props.set_athlete_state(this.props.athlete.id, !this.props.athlete.active);
-    },
 
     render: function() {
         var id = "athlete-" + this.props.athlete.id;
@@ -22,7 +19,11 @@ var AthleteLabel = React.createClass({
                 </label>
             </div>
         );
-    }
+    },
+
+    toggle_athlete: function() {
+        this.props.set_athlete_state(this.props.athlete.id, !this.props.athlete.active);
+    },
 });
 
 module.exports = AthleteLabel;

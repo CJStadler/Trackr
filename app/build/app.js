@@ -8,34 +8,26 @@ var App = React.createClass({displayName: "App",
 	getInitialState: function() {
 
 		var state = {
-			athletes: [],
-			events: []
+			athletes: []
 		};
 
 		if (this.props.athletes) {
 			// set attributes on athletes
 			state.athletes = this.add_default_attributes_to_athletes(this.props.athletes);
-
-			// get events
-			state.events = this.get_events_from_athletes(this.props.athletes);
 		}
 
 		return state;
     },
 
-	componentWillReceiveProps: function(new_props) {
-		console.log("props: " + new_props);
-		this.setState(new_props);
-	},
-
 	render: function() {
+		var events = this.get_events_from_athletes(this.state.athletes);
 		return (
 			React.createElement("div", null, 
 				React.createElement(Controller, {
 					athletes: this.state.athletes, 
 					add_athlete: this.add_athlete, 
 					set_athlete_state: this.set_athlete_state}), 
-				React.createElement(ChartsDisplay, {athletes: this.state.athletes, events: this.state.events})
+				React.createElement(ChartsDisplay, {athletes: this.state.athletes, events: events})
 			)
 		);
 	},
@@ -47,9 +39,7 @@ var App = React.createClass({displayName: "App",
 		athlete.active = true;
 		athlete.color = this.get_color(athletes.length);
 		athletes.push(athlete);
-		// re create events
-		var events = this.get_events_from_athletes(athletes);
-		this.setState({athletes: athletes, events: events});
+		this.setState({athletes: athletes});
 	},
 
 	add_default_attributes_to_athletes: function(athletes) {
@@ -110,8 +100,7 @@ var App = React.createClass({displayName: "App",
 		var index = this.find_athlete_index(id);
 		var athlete = this.state.athletes[index];
 		athlete.active = active
-		var events = this.get_events_from_athletes(athletes);
-		this.setState({athletes: athletes, events: events});
+		this.setState({athletes: athletes});
 	}
 });
 
