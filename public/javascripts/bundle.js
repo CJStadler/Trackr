@@ -189,7 +189,7 @@ var chart_builder = function() {
             .attr("y", 6);
     };
 
-    var update_chart =  function(event) {
+    var update_chart = function(event) {
         x.domain(d3.extent(event.races, function(d) { return parseDate(d.date); }));
         y.domain(d3.extent(event.races, function(d) { return time_to_seconds(d.mark); }));
 
@@ -240,7 +240,7 @@ var chart_builder = function() {
 
     var draw_lines = function(races_by_athlete_name) {
         var array = Object.keys(races_by_athlete_name).map(function(name) {
-            return races_by_athlete_name[name];
+            return get_prs(races_by_athlete_name[name]);
         });
         // Join lines
 		var paths = svg.selectAll(".line")
@@ -318,6 +318,20 @@ var chart_builder = function() {
     			"<p>Event: <span>" + performance.event + "</span></p>" +
     			"<p>Time: <span>" + performance.mark + "</span></p>" +
     			"<p>Place: <span>" + performance.place + "</span></p>";
+    };
+
+    var get_prs = function(races) {
+        // are we assuming races are sorted from first to last?
+        races.reverse();
+        var prs = [races[0]];
+        var i = 0;
+        races.forEach(function(r) {
+            if (time_to_seconds(r.mark) < time_to_seconds(prs[i].mark)) {
+                prs.push(r);
+                i += 1;
+            }
+        });
+        return prs;
     };
 
     return {init: init_chart, update: update_chart};
