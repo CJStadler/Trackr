@@ -131,7 +131,32 @@ var chart_builder = function() {
     };
 
     var draw_lines = function(races_by_athlete_name) {
+        var array = Object.keys(races_by_athlete_name).map(function(name) {
+            return races_by_athlete_name[name];
+        });
+        // Join lines
+		var paths = svg.selectAll(".line")
+			.data(array, function(d) { return d[0].color; });
 
+        // ENTER
+		paths.enter().append("path")
+			.attr("class", "line")
+			.attr("d", line)
+			.style("stroke", function(d) {
+                return d[0].color;
+            })
+			.style("stroke-opacity", 1);
+
+        // UPDATE
+        paths.transition().duration(transition_duration)
+			.attr("d", line);
+
+        // Exit
+        paths.exit()
+            .transition().duration(transition_duration)
+            .attr("d", line)
+            .style("stroke-opacity", 1e-6)
+            .remove();
     };
 
     var parseDate = function(d) {

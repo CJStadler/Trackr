@@ -62,13 +62,11 @@ var App = React.createClass({
         var array = [];
         var object = athletes.reduce(function(events, athlete) {
             // e.g. {'5000': {name: '5000', athletes:{'Mike Trout': []}}}
-			var athlete_races = []
 			if (athlete.active) {
 	            athlete.races.forEach(function(race) {
 					if (race.mark != "NT") {
 						race.color = athlete.color;
 						race.key = Date.now() + race.mark;
-		                var event;
 		                if (! (race.event in events)) {
 		                    events[race.event] = {name: race.event, races: [], athletes: {}};
 		                }

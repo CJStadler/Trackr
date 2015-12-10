@@ -63,13 +63,11 @@ var App = React.createClass({displayName: "App",
         var array = [];
         var object = athletes.reduce(function(events, athlete) {
             // e.g. {'5000': {name: '5000', athletes:{'Mike Trout': []}}}
-			var athlete_races = []
 			if (athlete.active) {
 	            athlete.races.forEach(function(race) {
 					if (race.mark != "NT") {
 						race.color = athlete.color;
 						race.key = Date.now() + race.mark;
-		                var event;
 		                if (! (race.event in events)) {
 		                    events[race.event] = {name: race.event, races: [], athletes: {}};
 		                }
@@ -241,7 +239,32 @@ var chart_builder = function() {
     };
 
     var draw_lines = function(races_by_athlete_name) {
+        var array = Object.keys(races_by_athlete_name).map(function(name) {
+            return races_by_athlete_name[name];
+        });
+        // Join lines
+		var paths = svg.selectAll(".line")
+			.data(array, function(d) { return d[0].color; });
 
+        // ENTER
+		paths.enter().append("path")
+			.attr("class", "line")
+			.attr("d", line)
+			.style("stroke", function(d) {
+                return d[0].color;
+            })
+			.style("stroke-opacity", 1);
+
+        // UPDATE
+        paths.transition().duration(transition_duration)
+			.attr("d", line);
+
+        // Exit
+        paths.exit()
+            .transition().duration(transition_duration)
+            .attr("d", line)
+            .style("stroke-opacity", 1e-6)
+            .remove();
     };
 
     var parseDate = function(d) {
