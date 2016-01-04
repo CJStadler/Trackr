@@ -10,7 +10,7 @@ var Panel = React.createClass({displayName: "Panel",
                 React.createElement("div", {className: "panel", id: this.get_id(), key: this.props.event.name}, 
                     React.createElement("div", {className: "close-panel", onClick: this.close_panel}, "x"), 
                     React.createElement("h1", null, this.props.event.name), 
-                    React.createElement(Chart, {event: this.props.event, athletes: this.props.athletes})
+                    React.createElement(Chart, {event: this.props.event, athletes: this.props.athletes, line_type: this.props.line_type})
                 )
             );
         } else {

@@ -8,7 +8,8 @@ var App = React.createClass({displayName: "App",
 	getInitialState: function() {
 
 		var state = {
-			athletes: []
+			athletes: [],
+			line_type: "normal"
 		};
 
 		if (this.props.athletes) {
@@ -25,11 +26,17 @@ var App = React.createClass({displayName: "App",
 			React.createElement("div", null, 
 				React.createElement(Controller, {
 					athletes: this.state.athletes, 
+					line_type: this.state.line_type, 
 					add_athlete: this.add_athlete, 
-					set_athlete_state: this.set_athlete_state}), 
-				React.createElement(ChartsDisplay, {athletes: this.state.athletes, events: events})
+					set_athlete_state: this.set_athlete_state, 
+					set_line_type: this.set_line_type}), 
+				React.createElement(ChartsDisplay, {athletes: this.state.athletes, events: events, line_type: this.state.line_type})
 			)
 		);
+	},
+
+	set_line_type: function(type) {
+		this.setState({line_type: type});
 	},
 
 	get_color: d3.scale.category10(),

@@ -81,7 +81,7 @@ var chart_builder = function() {
             .attr("y", 6);
     };
 
-    var update_chart = function(event) {
+    var update_chart = function(event, line_type) {
         x.domain(d3.extent(event.races, function(d) { return parseDate(d.date); }));
         y.domain(d3.extent(event.races, function(d) { return time_to_seconds(d.mark); }));
 
@@ -90,7 +90,7 @@ var chart_builder = function() {
         t.select(".y.axis").call(yAxis);
 
         draw_points(event.races);
-        draw_lines(event.athletes);
+        draw_lines(event.athletes, line_type);
     };
 
     var draw_points = function(races) {
@@ -130,10 +130,20 @@ var chart_builder = function() {
             .remove();
     };
 
-    var draw_lines = function(races_by_athlete_name) {
-        var array = Object.keys(races_by_athlete_name).map(function(name) {
-            return get_prs(races_by_athlete_name[name]);
-        });
+    var draw_lines = function(races_by_athlete_name, line_type) {
+        var array;
+        if (line_type === "PRs") {
+            array = Object.keys(races_by_athlete_name).map(function(name) {
+                return get_prs(races_by_athlete_name[name]);
+            });
+            line = line.interpolate("step-before");
+        } else {
+            array = Object.keys(races_by_athlete_name).map(function(name) {
+                return races_by_athlete_name[name];
+            });
+            line = line.interpolate("linear");
+        }
+
         // Join lines
 		var paths = svg.selectAll(".line")
 			.data(array, function(d) { return d[0].color; });
@@ -213,16 +223,16 @@ var chart_builder = function() {
     };
 
     var get_prs = function(races) {
-        // are we assuming races are sorted from first to last?
-        races.reverse();
-        var prs = [races[0]];
-        var i = 0;
-        races.forEach(function(r) {
-            if (time_to_seconds(r.mark) < time_to_seconds(prs[i].mark)) {
-                prs.push(r);
-                i += 1;
+        // assuming races are already sorted last to first
+        var l = races.length;
+        var prs = [];
+        var r;
+        for (var i = l - 1; i >= 0; i--) {
+            r = races[i];
+            if (prs.length === 0 || time_to_seconds(r.mark) < time_to_seconds(prs[0].mark)) {
+                prs.unshift(r);
             }
-        });
+        }
         return prs;
     };
 

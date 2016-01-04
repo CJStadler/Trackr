@@ -1,6 +1,7 @@
 var React = require('react'),
     GetAthleteForm = require('./get_athlete_form.js'),
-    AthletesKey = require('./athletes_key.js');
+    AthletesKey = require('./athletes_key.js'),
+    LineTypeForm = require('./line_type_form.js');
 
 var Controller = React.createClass({
     render: function() {
@@ -10,6 +11,7 @@ var Controller = React.createClass({
                 <AthletesKey
                     athletes={this.props.athletes}
                     set_athlete_state={this.props.set_athlete_state} />
+                <LineTypeForm line_type={this.props.line_type} set_line_type={this.props.set_line_type} />
             </section>
         );
     }

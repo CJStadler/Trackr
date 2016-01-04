@@ -10,11 +10,11 @@ var Chart = React.createClass({displayName: "Chart",
 
     componentDidMount: function() {
         this.state.chart_builder.init(this.chart_id());
-        this.state.chart_builder.update(this.props.event);
+        this.state.chart_builder.update(this.props.event, this.props.line_type);
     },
 
     componentDidUpdate: function() {
-        this.state.chart_builder.update(this.props.event);
+        this.state.chart_builder.update(this.props.event, this.props.line_type);
     },
 
     render: function() {

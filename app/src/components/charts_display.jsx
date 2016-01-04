@@ -12,13 +12,21 @@ var ChartsDisplay = React.createClass({
 
         var active_charts = sorted_events.active.map(function(event) {
             return (
-                <Panel key={event.name} active={true} event={event} athletes={this.props.athletes} disable_event={this.disable_event}/>
+                <Panel key={event.name}
+                    active={true}
+                    event={event}
+                    athletes={this.props.athletes}
+                    disable_event={this.disable_event}
+                    line_type={this.props.line_type} />
             );
         }.bind(this));
 
         var disabled_charts = sorted_events.disabled.map(function(event) {
             return (
-                <Panel key={event.name} active={false} event={event} activate_event={this.activate_event}/>
+                <Panel key={event.name}
+                    active={false}
+                    event={event}
+                    activate_event={this.activate_event}/>
             );
         }.bind(this));
 
