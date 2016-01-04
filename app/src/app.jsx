@@ -9,7 +9,7 @@ var App = React.createClass({
 
 		var state = {
 			athletes: [],
-			line_type: "normal"
+			line_type: "all connected"
 		};
 
 		if (this.props.athletes) {
@@ -22,6 +22,12 @@ var App = React.createClass({
 
 	render: function() {
 		var events = this.get_events_from_athletes(this.state.athletes);
+		var display;
+		if (events.length > 0) {
+			display = <ChartsDisplay athletes={this.state.athletes} events={events} line_type={this.state.line_type}/>
+		} else {
+			display = this.welcome_tip;
+		}
 		return (
 			<div>
 				<Controller
@@ -30,7 +36,7 @@ var App = React.createClass({
 					add_athlete={this.add_athlete}
 					set_athlete_state={this.set_athlete_state}
 					set_line_type={this.set_line_type}/>
-				<ChartsDisplay athletes={this.state.athletes} events={events} line_type={this.state.line_type}/>
+				{display}
 			</div>
 		);
 	},
@@ -106,7 +112,15 @@ var App = React.createClass({
 		var athlete = this.state.athletes[index];
 		athlete.active = active
 		this.setState({athletes: athletes});
-	}
+	},
+
+	welcome_tip: (
+		<div id="welcome-tip" className="panel">
+			<p>Welcome to Trackr! This is an early version and it may be buggy. Feel free to send me any bug reports or suggestions!</p>
+			<p>To visualize an athlete's races: find their tfrrs page, copy their id from the url, and enter it above.</p>
+			<p>E.g. my tfrrs page is tffrs.org/athletes/3273206.html, so my id is 3273206.</p><p>Add multiple athletes to compare them.</p>
+		</div>
+	)
 });
 
 module.exports = App;

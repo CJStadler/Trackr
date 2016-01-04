@@ -9,7 +9,7 @@ var App = React.createClass({displayName: "App",
 
 		var state = {
 			athletes: [],
-			line_type: "normal"
+			line_type: "all connected"
 		};
 
 		if (this.props.athletes) {
@@ -22,6 +22,12 @@ var App = React.createClass({displayName: "App",
 
 	render: function() {
 		var events = this.get_events_from_athletes(this.state.athletes);
+		var display;
+		if (events.length > 0) {
+			display = React.createElement(ChartsDisplay, {athletes: this.state.athletes, events: events, line_type: this.state.line_type})
+		} else {
+			display = this.welcome_tip;
+		}
 		return (
 			React.createElement("div", null, 
 				React.createElement(Controller, {
@@ -30,7 +36,7 @@ var App = React.createClass({displayName: "App",
 					add_athlete: this.add_athlete, 
 					set_athlete_state: this.set_athlete_state, 
 					set_line_type: this.set_line_type}), 
-				React.createElement(ChartsDisplay, {athletes: this.state.athletes, events: events, line_type: this.state.line_type})
+				display
 			)
 		);
 	},
@@ -106,7 +112,15 @@ var App = React.createClass({displayName: "App",
 		var athlete = this.state.athletes[index];
 		athlete.active = active
 		this.setState({athletes: athletes});
-	}
+	},
+
+	welcome_tip: (
+		React.createElement("div", {id: "welcome-tip", className: "panel"}, 
+			React.createElement("p", null, "Welcome to Trackr! This is an early version and it may be buggy. Feel free to send me any bug reports or suggestions!"), 
+			React.createElement("p", null, "To visualize an athlete's races: find their tfrrs page, copy their id from the url, and enter it above."), 
+			React.createElement("p", null, "E.g. my tfrrs page is tffrs.org/athletes/3273206.html, so my id is 3273206."), React.createElement("p", null, "Add multiple athletes to compare them.")
+		)
+	)
 });
 
 module.exports = App;

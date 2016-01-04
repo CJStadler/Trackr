@@ -2,7 +2,7 @@ var React = require('react');
 
 var LineTypeForm = React.createClass({displayName: "LineTypeForm",
     render: function() {
-        var checkboxes = ["normal", "PRs"].map(function(type) {
+        var checkboxes = ["all connected", "PRs"].map(function(type) {
             var set_state = function() {
                 this.props.set_line_type(type);
             }.bind(this);
