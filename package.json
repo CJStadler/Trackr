@@ -12,6 +12,7 @@
       "watch:bundle": "watchify app/build/app.js app/build/client.js -o public/javascripts/bundle.js -v"
   },
   "dependencies": {
+    "extend": "~3.0.0",
     "iso": "^4.2.0",
     "when": "^3.7.5",
     "body-parser": "~1.8.1",
