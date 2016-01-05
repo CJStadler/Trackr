@@ -1,3 +1,18 @@
+# Node
+/app/build/.module-cache
+/node_modules
+.npm
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
