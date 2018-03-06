@@ -12,7 +12,6 @@ var debug = require('debug')('Trackr');
 var app = express();
 
 app.set('port', process.env.PORT || 8080);
-app.set('ip_address', process.env.IP || '127.0.0.1');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -61,8 +60,8 @@ app.use(function(err, req, res, next) {
     });
 });
 
-app.listen(app.get('port'),app.get('ip_address'), function() {
-  console.log('Express server listening on ' + app.get('port') + ', ' + app.get('ip_address'));
+app.listen(app.get('port'), function() {
+  console.log('Express server listening on ' + app.get('port'));
 });
 
 module.exports = app;
