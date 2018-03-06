@@ -6,7 +6,6 @@ var d3 = require('d3');
 var App = React.createClass({
 
 	getInitialState: function() {
-
 		var state = {
 			athletes: [],
 			line_type: "all connected"
@@ -18,7 +17,7 @@ var App = React.createClass({
 		}
 
 		return state;
-    },
+  },
 
 	render: function() {
 		var events = this.get_events_from_athletes(this.state.athletes);
@@ -52,6 +51,7 @@ var App = React.createClass({
 		athlete.active = true;
 		athlete.color = this.get_color(athletes.length);
 		athletes.push(athlete);
+    add_athlete_id_to_url(athlete.id);
 		this.setState({athletes: athletes});
 	},
 
@@ -72,32 +72,33 @@ var App = React.createClass({
 	// ]
 	get_events_from_athletes: function(athletes) {
 		var event;
-        var array = [];
-        var object = athletes.reduce(function(events, athlete) {
-            // e.g. {'5000': {name: '5000', athletes:{'Mike Trout': []}}}
+    var array = [];
+    var object = athletes.reduce(function(events, athlete) {
+      // e.g. {'5000': {name: '5000', athletes:{'Mike Trout': []}}}
 			if (athlete.active) {
-	            athlete.races.forEach(function(race) {
+        athlete.races.forEach(function(race) {
 					if (race.mark != "NT") {
 						race.color = athlete.color;
 						race.key = Date.now() + race.mark;
-		                if (! (race.event in events)) {
-		                    events[race.event] = {name: race.event, races: [], athletes: {}};
-		                }
-		                if (! (athlete.name in events[race.event].athletes)) {
-		                    events[race.event].athletes[athlete.name] = [];
-		                }
-		                events[race.event].athletes[athlete.name].push(race);
+            if (! (race.event in events)) {
+                events[race.event] = {name: race.event, races: [], athletes: {}};
+            }
+            if (! (athlete.name in events[race.event].athletes)) {
+                events[race.event].athletes[athlete.name] = [];
+            }
+            events[race.event].athletes[athlete.name].push(race);
 						events[race.event].races.push(race);
 					}
-	            });
+        });
 			}
-            return events;
-        }, {});
-		// turn the object into an array
-        for (event in object) {
-            array.push(object[event]);
-        }
-        return array;
+
+      return events;
+    }, {});
+    // turn the object into an array
+    for (event in object) {
+        array.push(object[event]);
+    }
+    return array;
 	},
 
 	find_athlete_index: function(id) {
@@ -122,5 +123,19 @@ var App = React.createClass({
 		</div>
 	)
 });
+
+function add_athlete_id_to_url(id) {
+  var query_string = window.location.search;
+
+  if (!query_string) {
+    query_string = "?";
+  } else {
+    query_string += "&";
+  }
+
+  query_string += "athlete_ids[]=" + id;
+
+  window.history.pushState({}, '', query_string)
+}
 
 module.exports = App;

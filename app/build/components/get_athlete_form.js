@@ -11,7 +11,7 @@ var GetAthleteForm = React.createClass({displayName: "GetAthleteForm",
     },
 
     get_athlete: function(e) {
-  		e.preventDefault();
+  		e.preventDefault(); // Don't submit the form
   		var id = this.state.tfrrs_id;
       if (id) {
         var url = "/api?tfrrs_id=" + id;
