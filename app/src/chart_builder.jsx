@@ -100,9 +100,9 @@ var chart_builder = function() {
             .data(races, function(d) { return d.key; });
 
         // UPDATE
-    	dots.transition().duration(transition_duration)
-    		.attr("cx", function(d) { return x(parseDate(d.date)); })
-    		.attr("cy", function(d) { return y(time_to_seconds(d.mark)); });
+      	dots.transition().duration(transition_duration)
+      		.attr("cx", function(d) { return x(parseDate(d.date)); })
+      		.attr("cy", function(d) { return y(time_to_seconds(d.mark)); });
 
         // ENTER
         dots.enter().append("circle")
@@ -169,14 +169,18 @@ var chart_builder = function() {
             .remove();
     };
 
-    var parseDate = function(d) {
-        return d3.time.format("%m/%d/%y").parse(nice_date(d));
+    var parseDate = function(date) {
+        var parsed = d3.time.format("%b %d, %Y").parse(remove_date_range(date));
+        if (parsed === null) {
+          console.error("Date incorrectly formatted: " + date);
+        }
+        return parsed;
     };
 
-    // tfrrs dates are messy so we'll clean and standardize them
-    var nice_date = function(date) {
-    	date = date.slice(-8); // sometimes the dates are in ranges so we'll just take the last one
-    	date = date.replace(/-/g, "/");
+    // tfrrs dates are messy so we need to format them
+    // E.g.: "May 2-3, 2018", "Mar 31 - Apr 1, 2017"
+    var remove_date_range = function(date) {
+    	date = date.replace(/\s*-.+,/g, ",");
     	return date;
     };
 
