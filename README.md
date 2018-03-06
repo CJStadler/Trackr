@@ -12,6 +12,9 @@ Hosted at [trackr.cjstadler.com](http://trackr.cjstadler.com).
 
 ## Setup
 Install dependencies: `npm install`
+
 Build: `npm run build`
+
 Development server: `npm run dev`
+
 Watch for changes and build: `npm run watch:jsx` and `npm run watch:bundle`.
