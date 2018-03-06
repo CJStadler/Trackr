@@ -1,19 +1,23 @@
-Trackr
-======
+# Trackr
 
-A web application for visualizing Track &amp; Field athlete data.
+A web application for visualizing Track & Field athlete data.
 
-Generates charts displaying an athlete's progression in each of their events. Additional athletes can be added for comparison.
+Generates charts displaying an athlete's progression in each of their events.
+Multiple athletes can be added for comparison.
 
-Data is from tfrrs.org.
+Data is from [tfrrs.org](https://tfrrs.org).
 
 Visualizations are generated using d3.js.
 
-Currently hosted at http://trackr.cjstadler.com
+Hosted at [trackr.cjstadler.com](http://trackr.cjstadler.com).
 
+## Setup
+Install dependencies: `npm install`
+Build: `npm run build`
+Development server: `npm run dev`
+Watch for changes and build: `npm run watch:jsx` and `npm run watch:bundle`.
 
-React implementation
-====================
+## React implementation
 
 take athlete ids as params, prerender on server.
 
