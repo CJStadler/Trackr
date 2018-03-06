@@ -624,9 +624,9 @@ var GetAthleteForm = React.createClass({displayName: "GetAthleteForm",
     },
 
     get_athlete: function(e) {
-		e.preventDefault();
-		var id = this.state.tfrrs_id;
-		console.log(id);
+        e.preventDefault();
+        var id = this.state.tfrrs_id;
+        console.log(id);
         var url = "/api?tfrrs_id=" + id;
         d3.json(url, function(error, data) {
             if (error) {
@@ -636,7 +636,7 @@ var GetAthleteForm = React.createClass({displayName: "GetAthleteForm",
                 this.clear_input();
             }
         }.bind(this));
-	},
+    },
 
     clear_input: function() {
         this.setState({tfrrs_id: ""});
@@ -644,11 +644,11 @@ var GetAthleteForm = React.createClass({displayName: "GetAthleteForm",
 
     render: function() {
         return (
-            React.createElement("form", {id: "get-url", action: "/", method: "GET", onSubmit: this.get_athlete}, 
-                React.createElement("label", {htmlFor: "tfrrs_id"}, "tffrs.org/athletes/"), 
-                React.createElement("input", {type: "text", name: "tfrrs_id", id: "tfrrs_id", 
-                    value: this.state.tfrrs_id, 
-                    onChange: this.update_id}), 
+            React.createElement("form", {id: "get-url", action: "/", method: "GET", onSubmit: this.get_athlete},
+                React.createElement("label", {htmlFor: "tfrrs_id"}, "tffrs.org/athletes/"),
+                React.createElement("input", {type: "text", name: "tfrrs_id", id: "tfrrs_id",
+                    value: this.state.tfrrs_id,
+                    onChange: this.update_id}),
                 React.createElement("input", {type: "submit", value: "Get Data"})
             )
         )
