@@ -5,7 +5,6 @@ var Controller = require('./components/controller.js');
 var d3 = require('d3');
 
 var App = React.createClass({displayName: "App",
-
 	getInitialState: function() {
 		var state = {
 			athletes: [],
@@ -143,248 +142,241 @@ module.exports = App;
 
 },{"./components/charts_display.js":7,"./components/controller.js":8,"d3":13,"react":173}],2:[function(require,module,exports){
 var d3 = require('d3'),
-    d3_tip = require('d3-tip');
+  d3_tip = require('d3-tip');
 
 d3_tip(d3);
 
 var chart_builder = function() {
+  var svg, x, y, xAxis, yAxis, line, tip,
+    height = 300,
+    width = 500,
+    margin = {top: 20, right: 20, bottom: 20, left: 35},
+    inner_height = 300 - margin.top - margin.bottom,
+    inner_width = 500 - margin.right - margin.left,
+    transition_duration = 750;
 
-    var svg, x, y, xAxis, yAxis, line, tip,
-        height = 300,
-        width = 500,
-        margin = {top: 20, right: 20, bottom: 20, left: 35},
-        inner_height = 300 - margin.top - margin.bottom,
-        inner_width = 500 - margin.right - margin.left,
-        transition_duration = 750;
+  var init_chart = function(chart_id) {
+    // Add svg
+    svg = d3.select("#" + chart_id)
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var init_chart = function(chart_id) {
-        // Add svg
-        svg = d3.select("#" + chart_id)
-            .append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    x = d3.time.scale()
+        .range([0, inner_width]);
 
-        // init variables
-        x = d3.time.scale()
-            .range([0, inner_width]);
+    y = d3.scale.linear()
+        .range([inner_height, 0]);
 
-        y = d3.scale.linear()
-            .range([inner_height, 0]);
+    xAxis = d3.svg.axis()
+      .scale(x)
+      .ticks(7)
+      .orient("bottom");
 
-        xAxis = d3.svg.axis()
-            .scale(x)
-            .ticks(7)
-            //.tickFormat(function(d) { return showMonth(d); })
-            .orient("bottom");
+    yAxis = d3.svg.axis()
+      .scale(y)
+      .tickFormat(function(d) { return short_time(d); })
+      .orient("left");
 
-        yAxis = d3.svg.axis()
-            .scale(y)
-            .tickFormat(function(d) { return short_time(d); })
-            .orient("left");
+    line = d3.svg.line()
+      .x(function(d) { return x(parseDate(d.date)); })
+      .y(function(d) { return y(time_to_seconds(d.mark)); });
 
-        line = d3.svg.line()
-                .x(function(d) { return x(parseDate(d.date)); })
-                .y(function(d) { return y(time_to_seconds(d.mark)); });
+    tip = d3.tip()
+  		.attr('class', 'd3-tip')
+  		.offset(function(d) {
+  			var circle_offset = this.getBoundingClientRect().left;
 
-        tip = d3.tip()
-    		.attr('class', 'd3-tip')
-    		.offset(function(d) {
-    			var circle_offset = this.getBoundingClientRect().left;
-    			if (circle_offset < 150) {
-    				return [0, 8];
-    			} else {
-    				return [-8, 0];
-    			}
-    		})
-    		.direction(function(d) {
-    			var circle_offset = this.getBoundingClientRect().left;
-    			if (circle_offset < 150) {
-    				return 'e';
-    			} else {
-    				return 'n';
-    			}
-    		})
-    		.html(function(d) {
-    			return tooltip_html(d);
-    		});
+  			if (circle_offset < 150) {
+  				return [0, 8];
+  			} else {
+  				return [-8, 0];
+  			}
+  		})
+  		.direction(function(d) {
+  			var circle_offset = this.getBoundingClientRect().left;
 
-        svg.call(tip);
+  			if (circle_offset < 150) {
+  				return 'e';
+  			} else {
+  				return 'n';
+  			}
+  		})
+  		.html(function(d) {
+  			return tooltip_html(d);
+  		});
 
-        svg.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + inner_height + ")")
-            .call(xAxis);
+    svg.call(tip);
 
-        svg.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6);
-    };
+    svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + inner_height + ")")
+      .call(xAxis);
 
-    var update_chart = function(event, line_type) {
-        x.domain(d3.extent(event.races, function(d) { return parseDate(d.date); }));
-        y.domain(d3.extent(event.races, function(d) { return time_to_seconds(d.mark); }));
+    svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6);
+  };
 
-        var t = svg.transition().duration(transition_duration);
-        t.select(".x.axis").call(xAxis);
-        t.select(".y.axis").call(yAxis);
+  var update_chart = function(event, line_type) {
+    x.domain(d3.extent(event.races, function(d) { return parseDate(d.date); }));
+    y.domain(d3.extent(event.races, function(d) { return time_to_seconds(d.mark); }));
 
-        draw_points(event.races);
-        draw_lines(event.athletes, line_type);
-    };
+    var t = svg.transition().duration(transition_duration);
+    t.select(".x.axis").call(xAxis);
+    t.select(".y.axis").call(yAxis);
 
-    var draw_points = function(races) {
+    draw_points(event.races);
+    draw_lines(event.athletes, line_type);
+  };
 
-        // JOIN
-        var dots = svg.selectAll(".dot")
-            .data(races, function(d) { return d.key; });
+  var draw_points = function(races) {
+    // JOIN
+    var dots = svg.selectAll(".dot")
+      .data(races, function(d) { return d.key; });
 
-        // UPDATE
-      	dots.transition().duration(transition_duration)
-      		.attr("cx", function(d) { return x(parseDate(d.date)); })
-      		.attr("cy", function(d) { return y(time_to_seconds(d.mark)); });
+    // UPDATE
+  	dots.transition().duration(transition_duration)
+  		.attr("cx", function(d) { return x(parseDate(d.date)); })
+  		.attr("cy", function(d) { return y(time_to_seconds(d.mark)); });
 
-        // ENTER
-        dots.enter().append("circle")
-            .attr("class", "dot")
-            .attr("r", 5)
-            .attr("cx", function(d) {
-                return x(parseDate(d.date));
-            })
-            .attr("cy", function(d) {
-                return y(time_to_seconds(d.mark));
-            })
-            .on('mouseover', tip.show)
-            .on('mouseout', tip.hide)
-            .style("fill", function(d) { return d.color; })
-            .style("fill-opacity", 1e-6)
-            .transition().duration(transition_duration)
-                .style("fill-opacity", 1);
+    // ENTER
+    dots.enter().append("circle")
+      .attr("class", "dot")
+      .attr("r", 5)
+      .attr("cx", function(d) {
+        return x(parseDate(d.date));
+      })
+      .attr("cy", function(d) {
+        return y(time_to_seconds(d.mark));
+      })
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+      .style("fill", function(d) { return d.color; })
+      .style("fill-opacity", 1e-6)
+      .transition().duration(transition_duration)
+          .style("fill-opacity", 1);
 
-        // Exit
-        dots.exit()
-            .transition().duration(transition_duration)
-            .style("fill-opacity", 1e-6)
-            .attr("cx", function(d) { return x(parseDate(d.date)); })
-    		.attr("cy", function(d) { return y(time_to_seconds(d.mark)); })
-            .remove();
-    };
+    // Exit
+    dots.exit()
+      .transition().duration(transition_duration)
+      .style("fill-opacity", 1e-6)
+      .attr("cx", function(d) { return x(parseDate(d.date)); })
+      .attr("cy", function(d) { return y(time_to_seconds(d.mark)); })
+      .remove();
+  };
 
-    var draw_lines = function(races_by_athlete_name, line_type) {
-        var array;
-        if (line_type === "PRs") {
-            array = Object.keys(races_by_athlete_name).map(function(name) {
-                return get_prs(races_by_athlete_name[name]);
-            });
-            line = line.interpolate("step-before");
-        } else {
-            array = Object.keys(races_by_athlete_name).map(function(name) {
-                return races_by_athlete_name[name];
-            });
-            line = line.interpolate("linear");
-        }
+  var draw_lines = function(races_by_athlete_name, line_type) {
+    var array;
+    if (line_type === "PRs") {
+      array = Object.keys(races_by_athlete_name).map(function(name) {
+        return get_prs(races_by_athlete_name[name]);
+      });
+      line = line.interpolate("step-before");
+    } else {
+      array = Object.keys(races_by_athlete_name).map(function(name) {
+        return races_by_athlete_name[name];
+      });
+      line = line.interpolate("linear");
+    }
 
-        // Join lines
-		var paths = svg.selectAll(".line")
-			.data(array, function(d) { return d[0].color; });
+    // Join lines
+  	var paths = svg.selectAll(".line")
+  		.data(array, function(d) { return d[0].color; });
 
-        // ENTER
-		paths.enter().append("path")
-			.attr("class", "line")
-			.attr("d", line)
-			.style("stroke", function(d) {
-                return d[0].color;
-            })
-			.style("stroke-opacity", 1);
+    // ENTER
+    paths.enter().append("path")
+    	.attr("class", "line")
+    	.attr("d", line)
+    	.style("stroke", function(d) { return d[0].color; })
+    	.style("stroke-opacity", 1);
 
-        // UPDATE
-        paths.transition().duration(transition_duration)
-			.attr("d", line);
+    // UPDATE
+    paths.transition().duration(transition_duration)
+		  .attr("d", line);
 
-        // Exit
-        paths.exit()
-            .transition().duration(transition_duration)
-            .attr("d", line)
-            .style("stroke-opacity", 1e-6)
-            .remove();
-    };
+    // Exit
+    paths.exit()
+      .transition().duration(transition_duration)
+      .attr("d", line)
+      .style("stroke-opacity", 1e-6)
+      .remove();
+  };
 
-    var parseDate = function(date) {
-        var parsed = d3.time.format("%b %d, %Y").parse(remove_date_range(date));
-        if (parsed === null) {
-          console.error("Date incorrectly formatted: " + date);
-        }
-        return parsed;
-    };
+  var parseDate = function(date) {
+    var parsed = d3.time.format("%b %d, %Y").parse(remove_date_range(date));
+    if (parsed === null) {
+      console.error("Date incorrectly formatted: " + date);
+    }
+    return parsed;
+  };
 
-    // tfrrs dates are messy so we need to format them
-    // E.g.: "May 2-3, 2018", "Mar 31 - Apr 1, 2017"
-    var remove_date_range = function(date) {
-    	date = date.replace(/\s*-.+,/g, ",");
-    	return date;
-    };
+  // tfrrs dates are messy so we need to format them
+  // E.g.: "May 2-3, 2018", "Mar 31 - Apr 1, 2017"
+  var remove_date_range = function(date) {
+  	date = date.replace(/\s*-.+,/g, ",");
+  	return date;
+  };
 
-    // takes a string representing a time and returns the number of seconds.
-    var time_to_seconds = function(time) {
-    	var seconds = 0.0;
-    	var arr = time.split(":").reverse();
-    	var len = arr.length;
-    	seconds += parseFloat(arr[0]); // seconds
-    	if (len > 1) {
-    		seconds += parseInt(arr[1])*60; // minutes
-    	}
-    	return seconds;
-    };
+  // takes a string representing a time and returns the number of seconds.
+  var time_to_seconds = function(time) {
+  	var seconds = 0.0;
+  	var arr = time.split(":").reverse();
+  	var len = arr.length;
+  	seconds += parseFloat(arr[0]); // seconds
+  	if (len > 1) {
+  		seconds += parseInt(arr[1])*60; // minutes
+  	}
+  	return seconds;
+  };
 
-    //var showMonth: d3.time.format("%m/%y");
-    //var parseTime: d3.time.format("%M:%S.%L").parse;
+  var short_time = function(total) {
+    return seconds_to_time(total).slice(0,-3);
+  };
 
-    var short_time = function(total) {
-        return seconds_to_time(total).slice(0,-3);
-    };
+  // take the number of seconds and format it for display
+  var seconds_to_time = function(total) {
+    var minutes = Math.floor(total/60);
+    var seconds = total - minutes*60;
+    var divider;
+    if (seconds < 10) {
+      divider = ":0";
+    } else {
+      divider = ":";
+    }
+    return minutes + divider + seconds.toFixed(2);
+  };
 
-    // take the number of seconds and format it for display
-    var seconds_to_time = function(total) {
-        var minutes = Math.floor(total/60);
-        var seconds = total - minutes*60;
-        var divider;
-        if (seconds < 10) {
-            divider = ":0";
-        } else {
-            divider = ":";
-        }
-        return minutes + divider + seconds.toFixed(2);
-    };
+  // takes an object describing a performance and returns a nice readable string.
+  var tooltip_html = function(performance) {
+  	var date = d3.time.format("%A %m/%d/%y")(parseDate(performance.date));
+  	return "<p>Meet: <span>" + performance.meet + "</span></p>" +
+			"<p>Date: <span>" + date + "</span></p>" +
+			"<p>Event: <span>" + performance.event + "</span></p>" +
+			"<p>Time: <span>" + performance.mark + "</span></p>" +
+			"<p>Place: <span>" + performance.place + "</span></p>";
+  };
 
-    // takes an object describing a performance and returns a nice readable string.
-    var tooltip_html = function(performance) {
-    	var date = d3.time.format("%A %m/%d/%y")(parseDate(performance.date));
-    	return "<p>Meet: <span>" + performance.meet + "</span></p>" +
-    			"<p>Date: <span>" + date + "</span></p>" +
-    			"<p>Event: <span>" + performance.event + "</span></p>" +
-    			"<p>Time: <span>" + performance.mark + "</span></p>" +
-    			"<p>Place: <span>" + performance.place + "</span></p>";
-    };
+  var get_prs = function(races) {
+    // assuming races are already sorted last to first
+    var l = races.length;
+    var prs = [];
+    var r;
+    for (var i = l - 1; i >= 0; i--) {
+      r = races[i];
+      if (prs.length === 0 || time_to_seconds(r.mark) < time_to_seconds(prs[0].mark)) {
+          prs.unshift(r);
+      }
+    }
+    return prs;
+  };
 
-    var get_prs = function(races) {
-        // assuming races are already sorted last to first
-        var l = races.length;
-        var prs = [];
-        var r;
-        for (var i = l - 1; i >= 0; i--) {
-            r = races[i];
-            if (prs.length === 0 || time_to_seconds(r.mark) < time_to_seconds(prs[0].mark)) {
-                prs.unshift(r);
-            }
-        }
-        return prs;
-    };
-
-    return {init: init_chart, update: update_chart};
+  return {init: init_chart, update: update_chart};
 };
 
 module.exports = chart_builder;
@@ -405,7 +397,7 @@ iso.bootstrap(function (state, _, container) {
 // make the controller sticky
 var init_sticky = function() {
 	var bar = document.getElementById("top-bar");
-    var sticky_class = "sticky";
+  var sticky_class = "sticky";
 	var content = document.getElementById('app');
 	var header = document.getElementById("masthead");
 
@@ -418,7 +410,7 @@ var init_sticky = function() {
 	bar_height += parseInt(bar_style.marginTop) + parseInt(bar_style.marginBottom);
 
 	window.addEventListener("scroll", function() {
-		if( document.body.scrollTop > header_height ) {
+		if (document.body.scrollTop > header_height) {
 			bar.classList.add(sticky_class);
 			content.style.paddingTop = bar_height + "px";
 		} else {
@@ -434,53 +426,53 @@ init_sticky();
 var React = require('react');
 
 var AthleteLabel = React.createClass({displayName: "AthleteLabel",
+  render: function() {
+    var id = "athlete-" + this.props.athlete.id;
+    return (
+      React.createElement("div", {className: "label"}, 
+        React.createElement("input", {
+          type: "checkbox", 
+          id: id, 
+          checked: this.props.athlete.active, 
+          onChange: this.toggle_athlete}), 
+        React.createElement("label", {htmlFor: id}, 
+          this.props.athlete.name, 
+          React.createElement("span", {
+            className: "color-label", 
+            style: {backgroundColor: this.props.athlete.color}})
+        )
+      )
+    );
+  },
 
-    render: function() {
-        var id = "athlete-" + this.props.athlete.id;
-        return (
-            React.createElement("div", {className: "label"}, 
-                React.createElement("input", {
-                    type: "checkbox", 
-                    id: id, 
-                    checked: this.props.athlete.active, 
-                    onChange: this.toggle_athlete}), 
-                React.createElement("label", {htmlFor: id}, 
-                    this.props.athlete.name, 
-                    React.createElement("span", {
-                        className: "color-label", 
-                        style: {backgroundColor: this.props.athlete.color}})
-                )
-            )
-        );
-    },
-
-    toggle_athlete: function() {
-        this.props.set_athlete_state(this.props.athlete.id, !this.props.athlete.active);
-    },
+  toggle_athlete: function() {
+    this.props.set_athlete_state(this.props.athlete.id, !this.props.athlete.active);
+  },
 });
 
 module.exports = AthleteLabel;
 
 },{"react":173}],5:[function(require,module,exports){
 var React = require('react'),
-    AthleteLabel = require('./athlete_label.js');
+  AthleteLabel = require('./athlete_label.js');
 
 var AthletesKey = React.createClass({displayName: "AthletesKey",
-    render: function() {
-        var labels = this.props.athletes.map(function(athlete) {
-            return (
-                React.createElement(AthleteLabel, {
-                    athlete: athlete, 
-                    key: athlete.id, 
-                    set_athlete_state: this.props.set_athlete_state})
-            );
-        }.bind(this));
-        return (
-            React.createElement("div", {id: "athletes-key"}, 
-                labels
-            )
-        );
-    }
+  render: function() {
+    var labels = this.props.athletes.map(function(athlete) {
+      return (
+        React.createElement(AthleteLabel, {
+          athlete: athlete, 
+          key: athlete.id, 
+          set_athlete_state: this.props.set_athlete_state})
+      );
+    }.bind(this));
+
+    return (
+      React.createElement("div", {id: "athletes-key"}, 
+          labels
+      )
+    );
+  }
 });
 
 module.exports = AthletesKey;
@@ -491,188 +483,169 @@ var React = require('react'),
     chart_builder = require('../chart_builder.js');
 
 var Chart = React.createClass({displayName: "Chart",
+  getInitialState: function() {
+    return {chart_builder: chart_builder()};
+  },
 
-    getInitialState: function() {
-        return {chart_builder: chart_builder()};
-    },
+  componentDidMount: function() {
+    this.state.chart_builder.init(this.chart_id());
+    this.state.chart_builder.update(this.props.event, this.props.line_type);
+  },
 
-    componentDidMount: function() {
-        this.state.chart_builder.init(this.chart_id());
-        this.state.chart_builder.update(this.props.event, this.props.line_type);
-    },
+  componentDidUpdate: function() {
+    this.state.chart_builder.update(this.props.event, this.props.line_type);
+  },
 
-    componentDidUpdate: function() {
-        this.state.chart_builder.update(this.props.event, this.props.line_type);
-    },
+  render: function() {
+    return React.createElement("div", {id: this.chart_id()})
+  },
 
-    render: function() {
-        return React.createElement("div", {id: this.chart_id()})
-    },
-
-    chart_id: function() {
-        return "chart-" + this.props.event.name.replace(",", '').replace(".", "_");
-    },
+  chart_id: function() {
+    return "chart-" + this.props.event.name.replace(",", '').replace(".", "_");
+  },
 });
 
 module.exports = Chart;
 
 },{"../chart_builder.js":2,"d3":13,"react":173}],7:[function(require,module,exports){
 var React = require('react'),
-    Panel = require('./panel.js');
+  Panel = require('./panel.js');
 
 var ChartsDisplay = React.createClass({displayName: "ChartsDisplay",
+  getInitialState: function() {
+      return {disabled_events: []};
+  },
 
-    getInitialState: function() {
-        return {disabled_events: []};
-    },
+  render: function() {
+    var sorted_events = this.sorted_events();
 
-    render: function() {
-        var sorted_events = this.sorted_events();
+    var active_charts = sorted_events.active.map(function(event) {
+      return (
+        React.createElement(Panel, {key: event.name, 
+          active: true, 
+          event: event, 
+          athletes: this.props.athletes, 
+          disable_event: this.disable_event, 
+          line_type: this.props.line_type})
+      );
+    }.bind(this));
 
-        var active_charts = sorted_events.active.map(function(event) {
-            return (
-                React.createElement(Panel, {key: event.name, 
-                    active: true, 
-                    event: event, 
-                    athletes: this.props.athletes, 
-                    disable_event: this.disable_event, 
-                    line_type: this.props.line_type})
-            );
-        }.bind(this));
+    var disabled_charts = sorted_events.disabled.map(function(event) {
+      return (
+        React.createElement(Panel, {key: event.name, 
+          active: false, 
+          event: event, 
+          activate_event: this.activate_event})
+      );
+    }.bind(this));
 
-        var disabled_charts = sorted_events.disabled.map(function(event) {
-            return (
-                React.createElement(Panel, {key: event.name, 
-                    active: false, 
-                    event: event, 
-                    activate_event: this.activate_event})
-            );
-        }.bind(this));
+    return (
+      React.createElement("div", {id: "charts-display"}, 
+        React.createElement("div", {id: "disabled-events"}, 
+          disabled_charts
+        ), 
+        React.createElement("div", {id: "active-events"}, 
+          active_charts
+        )
+      )
+    );
+  },
 
-        return (
-            React.createElement("div", {id: "charts-display"}, 
-                React.createElement("div", {id: "disabled-events"}, 
-                    disabled_charts
-                ), 
-                React.createElement("div", {id: "active-events"}, 
-                    active_charts
-                )
-            )
-        );
-    },
+  sorted_events: function() {
+    var sorted_events = {active: [], disabled: []};
+    this.props.events.forEach(function(event) {
+      if (this.state.disabled_events.indexOf(event.name) >= 0) {
+        sorted_events.disabled.push(event);
+      } else {
+        sorted_events.active.push(event);
+      }
+    }.bind(this));
 
-    sorted_events: function() {
-        var sorted_events = {active: [], disabled: []};
-        this.props.events.forEach(function(event) {
-            if (this.state.disabled_events.indexOf(event.name) >= 0) {
-                sorted_events.disabled.push(event);
-            } else {
-                sorted_events.active.push(event);
-            }
-        }.bind(this));
+    return sorted_events;
+  },
 
-        return sorted_events;
-    },
+  disable_event: function(event_name) {
+    var names = this.state.disabled_events.slice();
+    names.push(event_name)
+    this.setState({disabled_events: names});
+  },
 
-    disable_event: function(event_name) {
-        var names = this.state.disabled_events.slice();
-        names.push(event_name)
-        this.setState({disabled_events: names});
-    },
-
-    activate_event: function(event_name) {
-        var names = this.state.disabled_events.slice();
-        var i = names.indexOf(event_name);
-        names.splice(i, 1)
-        this.setState({disabled_events: names});
-    }
-
-    // Get the names of all the events for which we have races
-    // event_names: function() {
-    //     var events = [];
-    //     // TODO: more efficient search?
-    //     this.props.athletes.forEach(function(a) {
-    //         a.races.forEach(function(r) {
-    //             if (events.indexOf(r.event) === -1) {
-    //                 events.push(r.event);
-    //             }
-    //         });
-    //     });
-    //
-    //     return events;
-    // },
-
-
+  activate_event: function(event_name) {
+    var names = this.state.disabled_events.slice();
+    var i = names.indexOf(event_name);
+    names.splice(i, 1)
+    this.setState({disabled_events: names});
+  }
 });
 
 module.exports = ChartsDisplay;
 
 },{"./panel.js":11,"react":173}],8:[function(require,module,exports){
 var React = require('react'),
-    GetAthleteForm = require('./get_athlete_form.js'),
-    AthletesKey = require('./athletes_key.js'),
-    LineTypeForm = require('./line_type_form.js');
+  GetAthleteForm = require('./get_athlete_form.js'),
+  AthletesKey = require('./athletes_key.js'),
+  LineTypeForm = require('./line_type_form.js');
 
 var Controller = React.createClass({displayName: "Controller",
-    render: function() {
-        return (
-            React.createElement("section", {id: "top-bar"}, 
-                React.createElement(GetAthleteForm, {add_athlete: this.props.add_athlete}), 
-                React.createElement(AthletesKey, {
-                    athletes: this.props.athletes, 
-                    set_athlete_state: this.props.set_athlete_state}), 
-                React.createElement(LineTypeForm, {line_type: this.props.line_type, set_line_type: this.props.set_line_type})
-            )
-        );
-    }
+  render: function() {
+    return (
+      React.createElement("section", {id: "top-bar"}, 
+        React.createElement(GetAthleteForm, {add_athlete: this.props.add_athlete}), 
+        React.createElement(AthletesKey, {
+          athletes: this.props.athletes, 
+          set_athlete_state: this.props.set_athlete_state}), 
+        React.createElement(LineTypeForm, {line_type: this.props.line_type, set_line_type: this.props.set_line_type})
+      )
+    );
+  }
 });
 
 module.exports = Controller
 
 },{"./athletes_key.js":5,"./get_athlete_form.js":9,"./line_type_form.js":10,"react":173}],9:[function(require,module,exports){
 var React = require('react'),
-    d3 = require('d3');
+  d3 = require('d3');
 
 var GetAthleteForm = React.createClass({displayName: "GetAthleteForm",
-    getInitialState: function() {
-      return {tfrrs_id: ''};
-    },
+  getInitialState: function() {
+    return {tfrrs_id: ''};
+  },
 
-    update_id: function(event) {
-      this.setState({tfrrs_id: event.target.value});
-    },
+  update_id: function(event) {
+    this.setState({tfrrs_id: event.target.value});
+  },
 
-    get_athlete: function(e) {
-  		e.preventDefault(); // Don't submit the form
-  		var id = this.state.tfrrs_id;
-      if (id) {
-        var url = "/api?tfrrs_id=" + id;
-        d3.json(url, function(error, data) {
-          if (error) {
-            return console.warn(error);
-          } else {
-            this.props.add_athlete(data.athlete);
-            this.clear_input();
-          }
-        }.bind(this));
-      }
-    },
-
-    clear_input: function() {
-      this.setState({tfrrs_id: ""});
-    },
-
-    render: function() {
-      return (
-        React.createElement("form", {id: "get-url", action: "/", method: "GET", onSubmit: this.get_athlete}, 
-          React.createElement("label", {htmlFor: "tfrrs_id"}, "tffrs.org/athletes/"), 
-          React.createElement("input", {type: "text", name: "tfrrs_id", id: "tfrrs_id", 
-            value: this.state.tfrrs_id, 
-            onChange: this.update_id}), 
-          React.createElement("input", {type: "submit", value: "Get Data"})
-        )
-      )
+  get_athlete: function(e) {
+		e.preventDefault(); // Don't submit the form
+		var id = this.state.tfrrs_id;
+    if (id) {
+      var url = "/api?tfrrs_id=" + id;
+      d3.json(url, function(error, data) {
+        if (error) {
+          return console.warn(error);
+        } else {
+          this.props.add_athlete(data.athlete);
+          this.clear_input();
+        }
+      }.bind(this));
     }
+  },
+
+  clear_input: function() {
+    this.setState({tfrrs_id: ""});
+  },
+
+  render: function() {
+    return (
+      React.createElement("form", {id: "get-url", action: "/", method: "GET", onSubmit: this.get_athlete}, 
+        React.createElement("label", {htmlFor: "tfrrs_id"}, "tffrs.org/athletes/"), 
+        React.createElement("input", {type: "text", name: "tfrrs_id", id: "tfrrs_id", 
+          value: this.state.tfrrs_id, 
+          onChange: this.update_id}), 
+        React.createElement("input", {type: "submit", value: "Get Data"})
+      )
+    )
+  }
 });
 
 module.exports = GetAthleteForm;
@@ -681,72 +654,71 @@ module.exports = GetAthleteForm;
 var React = require('react');
 
 var LineTypeForm = React.createClass({displayName: "LineTypeForm",
-    render: function() {
-        var checkboxes = ["all connected", "PRs"].map(function(type) {
-            var set_state = function() {
-                this.props.set_line_type(type);
-            }.bind(this);
+  render: function() {
+    var checkboxes = ["all connected", "PRs"].map(function(type) {
+      var set_state = function() {
+        this.props.set_line_type(type);
+      }.bind(this);
 
-            return (
-                React.createElement("span", {key: type}, 
-                    React.createElement("input", {
-                        type: "checkbox", 
-                        id: "type-" + type, 
-                        checked: type === this.props.line_type, 
-                        value: type, 
-                        onChange: set_state}), 
-                    React.createElement("label", {htmlFor: "type-" + type}, type)
-                )
-            );
-        }.bind(this));
-        return (
-            React.createElement("div", null, 
-                checkboxes
-            )
-        );
-    }
+      return (
+        React.createElement("span", {key: type}, 
+          React.createElement("input", {
+            type: "checkbox", 
+            id: "type-" + type, 
+            checked: type === this.props.line_type, 
+            value: type, 
+            onChange: set_state}), 
+          React.createElement("label", {htmlFor: "type-" + type}, type)
+        )
+      );
+    }.bind(this));
+    return (
+      React.createElement("div", null, 
+        checkboxes
+      )
+    );
+  }
 })
 
 module.exports = LineTypeForm;
 
 },{"react":173}],11:[function(require,module,exports){
 var React = require('react'),
-    Chart = require('./chart.js');
+  Chart = require('./chart.js');
 
 var Panel = React.createClass({displayName: "Panel",
-
-    render: function() {
-        var panel;
-        if (this.props.active) {
-            panel = (
-                React.createElement("div", {className: "panel", id: this.get_id(), key: this.props.event.name}, 
-                    React.createElement("div", {className: "close-panel", onClick: this.close_panel}, "x"), 
-                    React.createElement("h1", null, this.props.event.name), 
-                    React.createElement(Chart, {event: this.props.event, athletes: this.props.athletes, line_type: this.props.line_type})
-                )
-            );
-        } else {
-            panel = (
-                React.createElement("div", {className: "panel disabled", id: this.get_id(), key: this.props.event.name, onClick: this.open_panel}, 
-                    React.createElement("h1", null, "+ " + this.props.event.name)
-                )
-            );
-        }
-
-        return panel;
-    },
-
-    get_id: function() {
-        return "panel-" + this.props.event.name.replace(",", '').replace(".", "_");
-    },
-
-    close_panel: function() {
-        this.props.disable_event(this.props.event.name);
-    },
-
-    open_panel: function() {
-        this.props.activate_event(this.props.event.name);
+  render: function() {
+    var panel;
+    if (this.props.active) {
+      panel = (
+        React.createElement("div", {className: "panel", id: this.get_id(), key: this.props.event.name}, 
+          React.createElement("div", {className: "close-panel", onClick: this.close_panel}, "x"), 
+          React.createElement("h1", null, this.props.event.name), 
+          React.createElement(Chart, {event: this.props.event, athletes: this.props.athletes, line_type: this.props.line_type})
+        )
+      );
+    } else {
+      panel = (
+        React.createElement("div", {className: "panel disabled", id: this.get_id(), key: this.props.event.name, onClick: this.open_panel}, 
+          React.createElement("h1", null, "+ " + this.props.event.name)
+        )
+      );
     }
+
+    return panel;
+  },
+
+  get_id: function() {
+    return "panel-" + this.props.event.name.replace(",", '').replace(".", "_");
+  },
+
+  close_panel: function() {
+    this.props.disable_event(this.props.event.name);
+  },
+
+  open_panel: function() {
+    this.props.activate_event(this.props.event.name);
+  }
 });
 
 module.exports = Panel;

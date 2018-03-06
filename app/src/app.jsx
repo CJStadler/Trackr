@@ -4,7 +4,6 @@ var Controller = require('./components/controller.js');
 var d3 = require('d3');
 
 var App = React.createClass({
-
 	getInitialState: function() {
 		var state = {
 			athletes: [],

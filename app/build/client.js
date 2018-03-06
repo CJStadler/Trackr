@@ -13,7 +13,7 @@ iso.bootstrap(function (state, _, container) {
 // make the controller sticky
 var init_sticky = function() {
 	var bar = document.getElementById("top-bar");
-    var sticky_class = "sticky";
+  var sticky_class = "sticky";
 	var content = document.getElementById('app');
 	var header = document.getElementById("masthead");
 
@@ -26,7 +26,7 @@ var init_sticky = function() {
 	bar_height += parseInt(bar_style.marginTop) + parseInt(bar_style.marginBottom);
 
 	window.addEventListener("scroll", function() {
-		if( document.body.scrollTop > header_height ) {
+		if (document.body.scrollTop > header_height) {
 			bar.classList.add(sticky_class);
 			content.style.paddingTop = bar_height + "px";
 		} else {
