@@ -116,9 +116,9 @@ var App = React.createClass({
 
 	welcome_tip: (
 		<div id="welcome-tip" className="panel">
-			<p>Welcome to Trackr! This is an early version and it may be buggy. Feel free to send me any bug reports or suggestions!</p>
-			<p>To visualize an athlete's races: find their tfrrs page, copy their id from the url, and enter it above.</p>
-			<p>E.g. my tfrrs page is tffrs.org/athletes/3273206.html, so my id is 3273206.</p><p>Add multiple athletes to compare them.</p>
+			<p>To chart an athlete's performances: find their TFRRS page, copy their ID from the url, and enter it above.</p>
+			<p>E.g. my TFRRS page is <a href="https://www.tfrrs.org/athletes/3273206">tffrs.org/athletes/3273206.html</a>, so my ID is 3273206.</p>
+      <p>Add multiple athletes to compare them.</p>
 		</div>
 	)
 });

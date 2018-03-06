@@ -116,9 +116,9 @@ var App = React.createClass({displayName: "App",
 
 	welcome_tip: (
 		React.createElement("div", {id: "welcome-tip", className: "panel"}, 
-			React.createElement("p", null, "Welcome to Trackr! This is an early version and it may be buggy. Feel free to send me any bug reports or suggestions!"), 
-			React.createElement("p", null, "To visualize an athlete's races: find their tfrrs page, copy their id from the url, and enter it above."), 
-			React.createElement("p", null, "E.g. my tfrrs page is tffrs.org/athletes/3273206.html, so my id is 3273206."), React.createElement("p", null, "Add multiple athletes to compare them.")
+			React.createElement("p", null, "To chart an athlete's performances: find their TFRRS page, copy their ID from the url, and enter it above."), 
+			React.createElement("p", null, "E.g. my TFRRS page is ", React.createElement("a", {href: "https://www.tfrrs.org/athletes/3273206"}, "tffrs.org/athletes/3273206.html"), ", so my ID is 3273206."), 
+      React.createElement("p", null, "Add multiple athletes to compare them.")
 		)
 	)
 });
