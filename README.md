@@ -17,5 +17,4 @@ Development server: `npm run dev`
 Watch for changes and build: `npm run watch:jsx` and `npm run watch:bundle`.
 
 ## TODO
-- Ignore empty ID requests.
 - Set URL query params when an athlete is entered.
