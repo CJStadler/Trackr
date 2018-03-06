@@ -80,7 +80,6 @@ var scraper = {
             "mark": columns.eq(1).text().trim(),
             "place": columns.eq(2).text().trim()
           };
-          console.log("event = " + race.event);
 
           athlete.races.push(race);
         });

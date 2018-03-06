@@ -22,7 +22,7 @@ var Chart = React.createClass({
     },
 
     chart_id: function() {
-        return "chart-" + this.props.event.name.replace(',', '');
+        return "chart-" + this.props.event.name.replace(",", '').replace(".", "_");
     },
 });
 

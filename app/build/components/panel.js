@@ -25,7 +25,7 @@ var Panel = React.createClass({displayName: "Panel",
     },
 
     get_id: function() {
-        return "panel-" + this.props.event.name.replace(',', '');
+        return "panel-" + this.props.event.name.replace(",", '').replace(".", "_");
     },
 
     close_panel: function() {
